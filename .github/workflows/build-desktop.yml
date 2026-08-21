@@ -176,6 +176,7 @@ jobs:
           echo "CFLAGS=" >> $GITHUB_ENV
 
       - name: Import Apple certificate
+        if: env.APPLE_CERTIFICATE != ''
         env:
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
@@ -183,12 +184,10 @@ jobs:
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
           KEYCHAIN_PASSWORD=$(openssl rand -base64 32)
 
-          # Create temporary keychain
           security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
           security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
 
-          # Import certificate
           echo "$APPLE_CERTIFICATE" | base64 --decode > $RUNNER_TEMP/certificate.p12
           security import $RUNNER_TEMP/certificate.p12 \
             -k "$KEYCHAIN_PATH" \
@@ -223,6 +222,7 @@ jobs:
         run: pnpm --filter @deep-prism/desktop tauri build --target aarch64-apple-darwin
 
       - name: Notarize DMG
+        if: env.APPLE_ID != ''
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
@@ -277,11 +277,6 @@ jobs:
 
   # ──────────────────────────────────────────────
   # macOS (Intel x86_64)
-  # Ref: https://github.com/actions/runner-images/issues/13045
-  #      macos-13 retired 2025-12-04, macos-15-intel is the replacement
-  #      Intel runners available until Fall 2027
-  # Ref: https://v2.tauri.app/distribute/pipelines/github/
-  # Ref: https://v2.tauri.app/plugin/updater/ (platform key: darwin-x86_64)
   # ──────────────────────────────────────────────
   build-macos-intel:
     runs-on: macos-15-intel
@@ -290,11 +285,9 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Build tools required by vcpkg ports (autotools for gperf, fontconfig, etc.)
       - name: Install build tools
         run: brew install autoconf autoconf-archive automake libtool pkg-config
 
-      # Static linking via vcpkg — same approach as Apple Silicon and Windows.
       - name: Setup vcpkg
         run: |
           git clone --depth 1 https://github.com/microsoft/vcpkg $HOME/vcpkg
@@ -333,6 +326,7 @@ jobs:
           echo "CFLAGS=" >> $GITHUB_ENV
 
       - name: Import Apple certificate
+        if: env.APPLE_CERTIFICATE != ''
         env:
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
@@ -340,12 +334,10 @@ jobs:
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
           KEYCHAIN_PASSWORD=$(openssl rand -base64 32)
 
-          # Create temporary keychain
           security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
           security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
 
-          # Import certificate
           echo "$APPLE_CERTIFICATE" | base64 --decode > $RUNNER_TEMP/certificate.p12
           security import $RUNNER_TEMP/certificate.p12 \
             -k "$KEYCHAIN_PATH" \
@@ -380,6 +372,7 @@ jobs:
         run: pnpm --filter @deep-prism/desktop tauri build --target x86_64-apple-darwin
 
       - name: Notarize DMG
+        if: env.APPLE_ID != ''
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
