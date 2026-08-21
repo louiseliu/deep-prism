@@ -1,11 +1,11 @@
 <p align="center">
-  <img src="./apps/desktop/src-tauri/icons/icon.png" width="120" height="120" alt="ClaudePrism" />
+  <img src="./apps/desktop/src-tauri/icons/icon.png" width="120" height="120" alt="DeepPrism" />
 </p>
 
-<h1 align="center">ClaudePrism</h1>
+<h1 align="center">DeepPrism</h1>
 
 <p align="center">
-  An offline-first scientific writing workspace powered by Claude.<br/>
+  An offline-first scientific writing workspace powered by AI.<br/>
   LaTeX + Python + 100+ scientific skills — runs on your desktop.
 </p>
 
@@ -17,41 +17,41 @@
 </p>
 
 <p align="center">
-  <img src="./assets/demo/main.webp" alt="ClaudePrism Demo" width="800" />
+  <img src="./assets/demo/main.webp" alt="DeepPrism Demo" width="800" />
 </p>
 
 <p align="center">
-  <a href="https://claudeprism.delibae.dev?utm_source=github&utm_medium=readme&utm_campaign=launch_v054">
-    <img src="https://img.shields.io/badge/Website-claudeprism.dev-blue?style=flat-square&logo=googlechrome&logoColor=white" alt="Website" />
+  <a href="https://deepprism.dev?utm_source=github&utm_medium=readme&utm_campaign=launch_v054">
+    <img src="https://img.shields.io/badge/Website-deepprism.dev-blue?style=flat-square&logo=googlechrome&logoColor=white" alt="Website" />
   </a>&nbsp;
-  <a href="https://github.com/delibae/claude-prism/releases/latest/download/ClaudePrism-macOS.dmg">
+  <a href="https://github.com/louiseliu/deep-prism/releases/latest/download/DeepPrism-macOS.dmg">
     <img src="https://img.shields.io/badge/Download-macOS_(Apple_Silicon)-black?style=for-the-badge&logo=apple&logoColor=white" alt="Download for macOS (Apple Silicon)" />
   </a>&nbsp;
-  <a href="https://github.com/delibae/claude-prism/releases/latest/download/ClaudePrism-macOS-Intel.dmg">
+  <a href="https://github.com/louiseliu/deep-prism/releases/latest/download/DeepPrism-macOS-Intel.dmg">
     <img src="https://img.shields.io/badge/Download-macOS_(Intel)-555555?style=for-the-badge&logo=apple&logoColor=white" alt="Download for macOS (Intel)" />
   </a>&nbsp;
-  <a href="https://github.com/delibae/claude-prism/releases/latest/download/ClaudePrism-Windows-setup.exe">
+  <a href="https://github.com/louiseliu/deep-prism/releases/latest/download/DeepPrism-Windows-setup.exe">
     <img src="https://img.shields.io/badge/Download-Windows-0078D4?style=for-the-badge&logo=windows&logoColor=white" alt="Download for Windows" />
   </a>&nbsp;
-  <a href="https://github.com/delibae/claude-prism/releases/latest/download/ClaudePrism-Linux.AppImage">
+  <a href="https://github.com/louiseliu/deep-prism/releases/latest/download/DeepPrism-Linux.AppImage">
     <img src="https://img.shields.io/badge/Download-Linux_(AppImage)-FCC624?style=for-the-badge&logo=linux&logoColor=black" alt="Download for Linux" />
   </a>
 </p>
 <p align="center">
-  <a href="https://github.com/delibae/claude-prism/releases">
-    <img src="https://img.shields.io/github/v/release/delibae/claude-prism?style=flat-square&label=Latest%20Release&color=green" alt="Latest Release" />
+  <a href="https://github.com/louiseliu/deep-prism/releases">
+    <img src="https://img.shields.io/github/v/release/louiseliu/deep-prism?style=flat-square&label=Latest%20Release&color=green" alt="Latest Release" />
   </a>
 </p>
 
 ---
 
-## Why ClaudePrism?
+## Why DeepPrism?
 
 [OpenAI Prism](https://openai.com/prism/) is a cloud-based LaTeX workspace — all your files and data must be uploaded to OpenAI's servers to use it.
 
-ClaudePrism is a **local-first** alternative — your files are stored on your disk, compiled offline, and edited locally. AI features require sending content to Anthropic's API for inference (see [data usage](https://code.claude.com/docs/en/data-usage)).
+DeepPrism is a **local-first** alternative — your files are stored on your disk, compiled offline, and edited locally. AI features require sending content to Anthropic's API for inference (see [data usage](https://code.claude.com/docs/en/data-usage)).
 
-| | OpenAI Prism | ClaudePrism |
+| | OpenAI Prism | DeepPrism |
 |---|:---:|:---:|
 | AI Model | GPT-5.2 | **Claude Opus / Sonnet / Haiku** |
 | Runtime | Browser (cloud) | **Native desktop (Tauri 2 + Rust)** |
@@ -64,14 +64,14 @@ ClaudePrism is a **local-first** alternative — your files are stored on your d
 
 ### Data & Privacy
 
-ClaudePrism stores and compiles your documents locally — nothing is uploaded to a remote server for storage. However, when you use AI features, **prompts and file contents that Claude reads are sent to Anthropic's API for inference**, just like any cloud-based LLM tool. See [Claude Code data usage](https://code.claude.com/docs/en/data-usage) for retention policies and opt-out options.
+DeepPrism stores and compiles your documents locally — nothing is uploaded to a remote server for storage. However, when you use AI features, **prompts and file contents that Claude reads are sent to Anthropic's API for inference**, just like any cloud-based LLM tool. See [Claude Code data usage](https://code.claude.com/docs/en/data-usage) for retention policies and opt-out options.
 
 ---
 
 ## Features
 
 ### Python Environment (uv)
-ClaudePrism integrates [uv](https://docs.astral.sh/uv/) — the fast Python package manager — directly into the app. One click to install uv, one click to create a project-level virtual environment. Claude Code automatically uses the `.venv` when running Python code, so you can generate plots, run analysis scripts, and process data without leaving the editor.
+DeepPrism integrates [uv](https://docs.astral.sh/uv/) — the fast Python package manager — directly into the app. One click to install uv, one click to create a project-level virtual environment. Claude Code automatically uses the `.venv` when running Python code, so you can generate plots, run analysis scripts, and process data without leaving the editor.
 
 <p align="center">
   <img src="./assets/demo/python.webp" alt="Python Environment" width="600" />
@@ -98,7 +98,7 @@ Skills are installed globally (`~/.claude/skills/`) or per-project, and Claude a
 </p>
 
 ### Quick Start with Templates & Project Wizard
-Pick a template (paper, thesis, presentation, poster, letter, etc.), give it a name, optionally describe what you're writing — ClaudePrism sets up the project and generates initial content with AI. Drag & drop reference files (PDF, BIB, images) and start writing immediately.
+Pick a template (paper, thesis, presentation, poster, letter, etc.), give it a name, optionally describe what you're writing — DeepPrism sets up the project and generates initial content with AI. Drag & drop reference files (PDF, BIB, images) and start writing immediately.
 
 <p align="center">
   <img src="./assets/demo/starter.webp" alt="Template Gallery & Project Wizard" width="700" />
@@ -149,7 +149,7 @@ CodeMirror 6 with LaTeX/BibTeX syntax highlighting, real-time error linting, fin
 
 ## Installation
 
-Download the latest build from [GitHub Releases](https://github.com/delibae/claude-prism/releases).
+Download the latest build from [GitHub Releases](https://github.com/louiseliu/deep-prism/releases).
 
 ## Contributing
 
