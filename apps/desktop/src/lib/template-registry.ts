@@ -44,23 +44,23 @@ export interface TemplateDefinition {
 }
 
 export const CATEGORY_LABELS: Record<TemplateCategory, string> = {
-  academic: "Academic",
-  professional: "Professional",
-  creative: "Creative",
-  starter: "Starter",
+  academic: "学术",
+  professional: "专业",
+  creative: "创意",
+  starter: "入门",
 };
 
 export const SUBCATEGORY_LABELS: Record<TemplateSubcategory, string> = {
-  papers: "Papers",
-  theses: "Theses & Dissertations",
-  presentations: "Presentations",
-  posters: "Posters",
-  cv: "CV & Resume",
-  letters: "Letters",
-  reports: "Reports",
-  books: "Books",
-  newsletters: "Newsletters",
-  blank: "Blank",
+  papers: "论文",
+  theses: "学位论文",
+  presentations: "演示文稿",
+  posters: "海报",
+  cv: "简历",
+  letters: "信函",
+  reports: "报告",
+  books: "书籍",
+  newsletters: "通讯",
+  blank: "空白",
 };
 
 export const CATEGORY_SUBCATEGORIES: Record<
@@ -78,8 +78,8 @@ export const CATEGORY_SUBCATEGORIES: Record<
 const TEMPLATES: TemplateDefinition[] = [
   {
     id: "paper-standard",
-    name: "Research Paper",
-    description: "Academic paper with abstract, sections, and references",
+    name: "学术论文",
+    description: "带摘要、章节和参考文献的标准学术论文",
     category: "academic",
     subcategory: "papers",
     tags: [
@@ -349,8 +349,8 @@ Barret Zoph and Quoc~V Le.
   },
   {
     id: "paper-ieee",
-    name: "IEEE Conference Paper",
-    description: "Two-column IEEE conference format with standard sections",
+    name: "IEEE 会议论文",
+    description: "双栏 IEEE 会议论文格式，包含标准章节",
     category: "academic",
     subcategory: "papers",
     tags: [
@@ -564,8 +564,8 @@ H.~B. McMahan, D.~Ramage, K.~Talwar, and L.~Zhang, \`\`Learning differentially p
   },
   {
     id: "paper-acm",
-    name: "ACM Conference Paper",
-    description: "ACM SIGCONF format for computing conferences",
+    name: "ACM 会议论文",
+    description: "ACM SIGCONF 格式，适用于计算机学术会议",
     category: "academic",
     subcategory: "papers",
     tags: ["acm", "conference", "computing", "sigconf", "computer science"],
@@ -806,8 +806,8 @@ Y.~Cai and B.~Wan, \`\`IGSQL: Database schema interaction graph based neural mod
   },
   {
     id: "thesis-standard",
-    name: "Thesis",
-    description: "Dissertation or thesis with chapters and front matter",
+    name: "学位论文",
+    description: "包含章节和前言的硕博学位论文",
     category: "academic",
     subcategory: "theses",
     tags: ["thesis", "dissertation", "phd", "masters", "chapters", "academic"],
@@ -1125,8 +1125,8 @@ L.~N. Trefethen.
   },
   {
     id: "presentation-beamer",
-    name: "Presentation (Beamer)",
-    description: "Slide deck for talks, lectures, and conferences",
+    name: "学术演示 (Beamer)",
+    description: "适用于学术报告、讲座和会议的幻灯片",
     category: "academic",
     subcategory: "presentations",
     tags: ["beamer", "slides", "talk", "lecture", "conference", "presentation"],
@@ -1459,8 +1459,8 @@ model.learn(total_timesteps=10_000_000,
   },
   {
     id: "poster-academic",
-    name: "Academic Poster",
-    description: "Conference or research poster with multi-column layout",
+    name: "学术海报",
+    description: "多栏布局的学术会议海报",
     category: "academic",
     subcategory: "posters",
     tags: ["poster", "conference", "research", "a0", "a1", "multi-column"],
@@ -1810,8 +1810,8 @@ This work was supported by the Wellcome Trust (Grant 203141/Z/16/Z), EPSRC Docto
   },
   {
     id: "cv-modern",
-    name: "CV / Resume",
-    description: "Clean, professional curriculum vitae layout",
+    name: "个人简历",
+    description: "简洁专业的简历排版",
     category: "professional",
     subcategory: "cv",
     tags: ["cv", "resume", "curriculum vitae", "job", "career", "professional"],
@@ -1995,8 +1995,8 @@ Machine learning researcher with 8+ years of experience in natural language proc
   },
   {
     id: "letter-formal",
-    name: "Formal Letter",
-    description: "Professional or cover letter with standard formatting",
+    name: "正式信函",
+    description: "标准格式的正式信函或求职信",
     category: "professional",
     subcategory: "letters",
     tags: ["letter", "formal", "cover letter", "business", "correspondence"],
@@ -2123,8 +2123,8 @@ Massachusetts Institute of Technology\\\\
   },
   {
     id: "report-technical",
-    name: "Technical Report",
-    description: "Structured report with table of contents and sections",
+    name: "技术报告",
+    description: "带目录和章节的结构化技术报告",
     category: "professional",
     subcategory: "reports",
     tags: ["report", "technical", "business", "documentation", "sections"],
@@ -2471,8 +2471,8 @@ Based on our evaluation, we recommend the following deployment plan:
   },
   {
     id: "book-standard",
-    name: "Book",
-    description: "Multi-chapter book or manuscript with front/back matter",
+    name: "书籍",
+    description: "多章节书籍或手稿，含前言和附录",
     category: "creative",
     subcategory: "books",
     tags: ["book", "manuscript", "chapters", "novel", "textbook", "publishing"],
@@ -2780,8 +2780,8 @@ D.~Boneh and V.~Shoup.
   },
   {
     id: "newsletter",
-    name: "Newsletter",
-    description: "Multi-column newsletter with header and styled sections",
+    name: "通讯刊物",
+    description: "多栏排版的通讯刊物，含页眉和样式化章节",
     category: "creative",
     subcategory: "newsletters",
     tags: ["newsletter", "column", "publication", "magazine", "bulletin"],
@@ -3020,9 +3020,9 @@ Back issues: \\href{https://cs.stanford.edu/newsletter}{cs.stanford.edu/newslett
   },
   {
     id: "report-scientific",
-    name: "Scientific Report",
+    name: "科研报告",
     description:
-      "Professional scientific report with structured sections, statistical commands, and bibliography",
+      "包含结构化章节、统计命令和参考文献的专业科研报告",
     category: "academic",
     subcategory: "reports",
     tags: [
@@ -3181,8 +3181,8 @@ Summarize the key findings and their significance. State the main contributions 
   },
   {
     id: "blank",
-    name: "Blank Document",
-    description: "Minimal template to start from scratch",
+    name: "空白文档",
+    description: "从零开始的最小模板",
     category: "starter",
     subcategory: "blank",
     tags: ["blank", "empty", "minimal", "scratch", "custom"],
@@ -3258,24 +3258,9 @@ export function searchTemplates(query: string): TemplateDefinition[] {
 }
 
 /**
- * Extract the skeleton (preamble only) from a template's content.
- * Keeps everything before \begin{document} (packages, styling, custom commands)
- * and adds an empty document body. The full `content` is preserved for
- * gallery preview / example rendering.
+ * Return the template's full content including example body.
+ * This ensures users see a complete, compilable document immediately.
  */
 export function getTemplateSkeleton(template: TemplateDefinition): string {
-  const marker = "\\begin{document}";
-  const idx = template.content.indexOf(marker);
-  if (idx === -1) return template.content;
-
-  const preamble = template.content.slice(0, idx).trimEnd();
-
-  return `${preamble}
-
-\\begin{document}
-
-\\mbox{} % Placeholder — content will be generated based on your description.
-
-\\end{document}
-`;
+  return template.content;
 }

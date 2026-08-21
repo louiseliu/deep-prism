@@ -91,7 +91,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ZOTERO_CONSUMER_KEY: ${{ secrets.ZOTERO_CONSUMER_KEY }}
           ZOTERO_CONSUMER_SECRET: ${{ secrets.ZOTERO_CONSUMER_SECRET }}
-        run: pnpm --filter @claude-prism/desktop tauri build --target x86_64-pc-windows-msvc
+        run: pnpm --filter @deep-prism/desktop tauri build --target x86_64-pc-windows-msvc
 
       - name: Collect updater artifacts
         id: collect
@@ -220,7 +220,7 @@ jobs:
           ZOTERO_CONSUMER_KEY: ${{ secrets.ZOTERO_CONSUMER_KEY }}
           ZOTERO_CONSUMER_SECRET: ${{ secrets.ZOTERO_CONSUMER_SECRET }}
           APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
-        run: pnpm --filter @claude-prism/desktop tauri build --target aarch64-apple-darwin
+        run: pnpm --filter @deep-prism/desktop tauri build --target aarch64-apple-darwin
 
       - name: Notarize DMG
         env:
@@ -231,7 +231,7 @@ jobs:
           TARGET="aarch64-apple-darwin"
           BUNDLE="apps/desktop/src-tauri/target/$TARGET/release/bundle"
           DMG_PATH=$(find "$BUNDLE/dmg" -name '*.dmg' | head -1)
-          APP_PATH="$BUNDLE/macos/ClaudePrism.app"
+          APP_PATH="$BUNDLE/macos/DeepPrism.app"
 
           if [ -z "$DMG_PATH" ]; then
             echo "Error: DMG not found"
@@ -377,7 +377,7 @@ jobs:
           ZOTERO_CONSUMER_KEY: ${{ secrets.ZOTERO_CONSUMER_KEY }}
           ZOTERO_CONSUMER_SECRET: ${{ secrets.ZOTERO_CONSUMER_SECRET }}
           APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
-        run: pnpm --filter @claude-prism/desktop tauri build --target x86_64-apple-darwin
+        run: pnpm --filter @deep-prism/desktop tauri build --target x86_64-apple-darwin
 
       - name: Notarize DMG
         env:
@@ -388,7 +388,7 @@ jobs:
           TARGET="x86_64-apple-darwin"
           BUNDLE="apps/desktop/src-tauri/target/$TARGET/release/bundle"
           DMG_PATH=$(find "$BUNDLE/dmg" -name '*.dmg' | head -1)
-          APP_PATH="$BUNDLE/macos/ClaudePrism.app"
+          APP_PATH="$BUNDLE/macos/DeepPrism.app"
 
           if [ -z "$DMG_PATH" ]; then
             echo "Error: DMG not found"
@@ -478,7 +478,7 @@ jobs:
           TECTONIC_PKGCONFIG_FORCE_SEMI_STATIC: "true"
           CXXFLAGS: "-std=c++17"
           CFLAGS: ""
-        run: pnpm --filter @claude-prism/desktop tauri build --target x86_64-unknown-linux-gnu
+        run: pnpm --filter @deep-prism/desktop tauri build --target x86_64-unknown-linux-gnu
 
       - name: Collect updater artifacts
         id: collect
@@ -552,17 +552,17 @@ jobs:
             const BASE = process.env.BASE_URL;
             const platforms = {};
             if (process.env.MAC_SIG)
-              platforms['darwin-aarch64'] = { signature: process.env.MAC_SIG, url: BASE + '/ClaudePrism-macOS.app.tar.gz' };
+              platforms['darwin-aarch64'] = { signature: process.env.MAC_SIG, url: BASE + '/DeepPrism-macOS.app.tar.gz' };
             if (process.env.MAC_INTEL_SIG)
-              platforms['darwin-x86_64'] = { signature: process.env.MAC_INTEL_SIG, url: BASE + '/ClaudePrism-macOS-Intel.app.tar.gz' };
+              platforms['darwin-x86_64'] = { signature: process.env.MAC_INTEL_SIG, url: BASE + '/DeepPrism-macOS-Intel.app.tar.gz' };
             if (process.env.LIN_SIG)
-              platforms['linux-x86_64'] = { signature: process.env.LIN_SIG, url: BASE + '/ClaudePrism-Linux.AppImage' };
+              platforms['linux-x86_64'] = { signature: process.env.LIN_SIG, url: BASE + '/DeepPrism-Linux.AppImage' };
             if (process.env.WIN_SIG)
-              platforms['windows-x86_64'] = { signature: process.env.WIN_SIG, url: BASE + '/ClaudePrism-Windows-setup.exe' };
+              platforms['windows-x86_64'] = { signature: process.env.WIN_SIG, url: BASE + '/DeepPrism-Windows-setup.exe' };
 
             const data = {
               version: '$VERSION',
-              notes: 'ClaudePrism $TAG',
+              notes: 'DeepPrism $TAG',
               pub_date: '$PUB_DATE',
               platforms
             };
@@ -576,7 +576,7 @@ jobs:
         run: |
           TAG="${{ steps.tag.outputs.tag }}"
           gh release view "$TAG" > /dev/null 2>&1 || \
-            gh release create "$TAG" --title "ClaudePrism $TAG" --generate-notes --draft
+            gh release create "$TAG" --title "DeepPrism $TAG" --generate-notes --draft
 
       - name: Rename and upload assets
         env:
@@ -587,18 +587,18 @@ jobs:
 
           # Rename platform artifacts to version-free names
           # macOS Apple Silicon (from desktop-macos artifact)
-          find artifacts/desktop-macos -name "*.dmg" 2>/dev/null | head -1 | xargs -I{} cp {} upload/ClaudePrism-macOS.dmg
-          find artifacts/desktop-macos -name "*.app.tar.gz" 2>/dev/null | head -1 | xargs -I{} cp {} upload/ClaudePrism-macOS.app.tar.gz
+          find artifacts/desktop-macos -name "*.dmg" 2>/dev/null | head -1 | xargs -I{} cp {} upload/DeepPrism-macOS.dmg
+          find artifacts/desktop-macos -name "*.app.tar.gz" 2>/dev/null | head -1 | xargs -I{} cp {} upload/DeepPrism-macOS.app.tar.gz
           # macOS Intel (from desktop-macos-intel artifact)
-          find artifacts/desktop-macos-intel -name "*.dmg" 2>/dev/null | head -1 | xargs -I{} cp {} upload/ClaudePrism-macOS-Intel.dmg
-          find artifacts/desktop-macos-intel -name "*.app.tar.gz" 2>/dev/null | head -1 | xargs -I{} cp {} upload/ClaudePrism-macOS-Intel.app.tar.gz
+          find artifacts/desktop-macos-intel -name "*.dmg" 2>/dev/null | head -1 | xargs -I{} cp {} upload/DeepPrism-macOS-Intel.dmg
+          find artifacts/desktop-macos-intel -name "*.app.tar.gz" 2>/dev/null | head -1 | xargs -I{} cp {} upload/DeepPrism-macOS-Intel.app.tar.gz
           # Windows
-          find artifacts/desktop-windows -name "*-setup.exe" 2>/dev/null | head -1 | xargs -I{} cp {} upload/ClaudePrism-Windows-setup.exe
-          find artifacts/desktop-windows -name "*.msi" 2>/dev/null | head -1 | xargs -I{} cp {} upload/ClaudePrism-Windows.msi
+          find artifacts/desktop-windows -name "*-setup.exe" 2>/dev/null | head -1 | xargs -I{} cp {} upload/DeepPrism-Windows-setup.exe
+          find artifacts/desktop-windows -name "*.msi" 2>/dev/null | head -1 | xargs -I{} cp {} upload/DeepPrism-Windows.msi
           # Linux
-          find artifacts/desktop-linux -name "*.deb" 2>/dev/null | head -1 | xargs -I{} cp {} upload/ClaudePrism-Linux.deb
-          find artifacts/desktop-linux -name "*.rpm" 2>/dev/null | head -1 | xargs -I{} cp {} upload/ClaudePrism-Linux.rpm
-          find artifacts/desktop-linux -name "*.AppImage" 2>/dev/null | head -1 | xargs -I{} cp {} upload/ClaudePrism-Linux.AppImage
+          find artifacts/desktop-linux -name "*.deb" 2>/dev/null | head -1 | xargs -I{} cp {} upload/DeepPrism-Linux.deb
+          find artifacts/desktop-linux -name "*.rpm" 2>/dev/null | head -1 | xargs -I{} cp {} upload/DeepPrism-Linux.rpm
+          find artifacts/desktop-linux -name "*.AppImage" 2>/dev/null | head -1 | xargs -I{} cp {} upload/DeepPrism-Linux.AppImage
 
           cp latest.json upload/
 

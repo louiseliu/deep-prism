@@ -8,6 +8,7 @@ import {
   CheckIcon,
   AlertCircleIcon,
   RefreshCwIcon,
+  PlusIcon,
   TerminalIcon,
   CircleIcon,
   ChevronRightIcon,
@@ -70,60 +71,60 @@ const CLAUDE_COMPATIBLE_PRESETS: ClaudeCompatiblePreset[] = [
     id: "modelgate-web",
     label: "ModelGate Claude (Web)",
     baseUrl: "https://mg.aid.pub/claude-proxy",
-    note: "Use a ModelGate web API key with the Claude proxy endpoint.",
+    note: "使用 ModelGate Web API Key 访问 Claude 代理端点。",
   },
 ];
 
 const OPENAI_COMPATIBLE_PRESETS: OpenAICompatiblePreset[] = [
   {
-    id: "openai",
-    label: "OpenAI",
-    baseUrl: "https://api.openai.com",
-    model: "",
-    note: "OpenAI chat completions endpoint.",
+    id: "deepseek",
+    label: "DeepSeek",
+    baseUrl: "https://api.deepseek.com/v1",
+    model: "deepseek-chat",
+    note: "DeepSeek OpenAI 兼容端点，推荐中国用户使用。",
   },
   {
     id: "qwen",
-    label: "Qwen",
-    baseUrl: "https://dashscope.aliyuncs.com/apps/anthropic",
-    model: "",
-    note: "Qwen Anthropic-compatible endpoint for Claude Code.",
-  },
-  {
-    id: "deepseek",
-    label: "DeepSeek",
-    baseUrl: "https://api.deepseek.com/anthropic",
-    model: "",
-    note: "DeepSeek Anthropic-compatible endpoint for Claude Code.",
+    label: "通义千问 (Qwen)",
+    baseUrl: "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    model: "qwen-plus",
+    note: "阿里云 DashScope OpenAI 兼容端点。",
   },
   {
     id: "moonshot",
     label: "Moonshot / Kimi",
-    baseUrl: "https://api.moonshot.ai/anthropic",
-    model: "",
-    note: "Kimi Anthropic-compatible endpoint for Claude Code.",
+    baseUrl: "https://api.moonshot.cn/v1",
+    model: "moonshot-v1-auto",
+    note: "月之暗面 Kimi OpenAI 兼容端点。",
   },
   {
     id: "glm",
-    label: "GLM (BigModel)",
+    label: "智谱 GLM",
     baseUrl: "https://open.bigmodel.cn/api/paas/v4",
-    model: "",
-    note: "Zhipu BigModel chat completions endpoint.",
+    model: "glm-4-plus",
+    note: "智谱 BigModel OpenAI 兼容端点。",
+  },
+  {
+    id: "openai",
+    label: "OpenAI",
+    baseUrl: "https://api.openai.com/v1",
+    model: "gpt-4o",
+    note: "OpenAI 官方端点。",
   },
   {
     id: "ollama",
-    label: "Ollama",
+    label: "Ollama (本地)",
     baseUrl: "http://localhost:11434/v1",
     model: "",
-    note: "Local Ollama OpenAI-compatible endpoint.",
+    note: "本地 Ollama OpenAI 兼容端点，无需 API Key。",
     apiKeyOptional: true,
   },
   {
     id: "gemini",
-    label: "Gemini OpenAI",
+    label: "Gemini",
     baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai",
-    model: "",
-    note: "Google Gemini OpenAI-compatible endpoint.",
+    model: "gemini-2.0-flash",
+    note: "Google Gemini OpenAI 兼容端点。",
   },
 ];
 
@@ -158,95 +159,24 @@ const CLAUDE_PROVIDER_CARDS: ModelProviderCard[] = [
   })),
 ];
 
-const OPENAI_DEFAULT_PRESET_ID = OPENAI_PROVIDER_CARDS[0]?.id ?? "openai";
-const DEEPSEEK_ANTHROPIC_BASE_URL = "https://api.deepseek.com/anthropic";
-const QWEN_ANTHROPIC_BASE_URL = "https://dashscope.aliyuncs.com/apps/anthropic";
-const MOONSHOT_ANTHROPIC_BASE_URL = "https://api.moonshot.ai/anthropic";
-const MOONSHOT_OFFICIAL_ORIGIN = "https://api.moonshot.ai";
-
-function deepseekOrigin(url: string) {
-  const trimmed = url.trim();
-  const match = trimmed.match(/^(https?:\/\/api\.deepseek\.com)(?:\/|$)/i);
-  return match?.[1] ?? null;
-}
-
-function qwenOrigin(url: string) {
-  const trimmed = url.trim();
-  const match = trimmed.match(
-    /^(https?:\/\/dashscope(?:-intl)?\.aliyuncs\.com)(?:\/|$)/i,
-  );
-  return match?.[1] ?? null;
-}
-
-function moonshotOrigin(url: string) {
-  const trimmed = url.trim();
-  const match = trimmed.match(
-    /^(https?:\/\/api\.moonshot\.(?:cn|ai))(?:\/|$)/i,
-  );
-  return match?.[1] ?? null;
-}
+const OPENAI_DEFAULT_PRESET_ID = OPENAI_PROVIDER_CARDS[0]?.id ?? "deepseek";
 
 function canonicalOpenAiCompatibleBaseUrl(
   url: string,
-  presetId?: string | null,
+  _presetId?: string | null,
 ) {
-  const trimmed = url.trim();
-  const origin = deepseekOrigin(trimmed);
-  if (
-    origin &&
-    (presetId === "deepseek" || !trimmed.toLowerCase().includes("/anthropic"))
-  ) {
-    const lower = trimmed.toLowerCase();
-    const anthropicIndex = lower.indexOf("/anthropic");
-    if (anthropicIndex >= 0) {
-      return `${trimmed.slice(0, anthropicIndex)}/anthropic`;
-    }
-    return `${origin}/anthropic`;
-  }
-
-  const qwenBaseOrigin = qwenOrigin(trimmed);
-  if (
-    qwenBaseOrigin &&
-    (presetId === "qwen" ||
-      trimmed.toLowerCase().includes("/apps/anthropic") ||
-      trimmed.toLowerCase().includes("/compatible-mode/") ||
-      normalizeOriginOnlyUrl(trimmed) ===
-        normalizeOriginOnlyUrl(qwenBaseOrigin))
-  ) {
-    const lower = trimmed.toLowerCase();
-    const anthropicIndex = lower.indexOf("/apps/anthropic");
-    if (anthropicIndex >= 0) {
-      return `${trimmed.slice(0, anthropicIndex)}/apps/anthropic`;
-    }
-    return `${qwenBaseOrigin}/apps/anthropic`;
-  }
-
-  const moonshotBaseOrigin = moonshotOrigin(trimmed);
-  if (
-    moonshotBaseOrigin &&
-    (presetId === "moonshot" ||
-      trimmed.toLowerCase().includes("/anthropic") ||
-      trimmed.toLowerCase().includes("/v1") ||
-      normalizeOriginOnlyUrl(trimmed) ===
-        normalizeOriginOnlyUrl(moonshotBaseOrigin))
-  ) {
-    const lower = trimmed.toLowerCase();
-    const anthropicIndex = lower.indexOf("/anthropic");
-    if (anthropicIndex >= 0) {
-      return `${MOONSHOT_OFFICIAL_ORIGIN}/anthropic`;
-    }
-    return `${MOONSHOT_OFFICIAL_ORIGIN}/anthropic`;
-  }
-
-  return trimmed;
+  return url
+    .trim()
+    .replace(/\/chat\/completions$/i, "")
+    .replace(/\/+$/, "");
 }
 
 function normalizeOriginOnlyUrl(value: string) {
   return value.trim().replace(/\/+$/, "").toLowerCase();
 }
 
-function isNativeAnthropicPreset(cardId?: string | null) {
-  return cardId === "deepseek" || cardId === "qwen" || cardId === "moonshot";
+function isNativeAnthropicPreset(_cardId?: string | null) {
+  return false;
 }
 
 function normalizePresetBaseUrl(url: string) {
@@ -457,7 +387,7 @@ function InstallLogOutput() {
             visible && "rotate-90",
           )}
         />
-        {visible ? "Hide logs" : "Show logs"}
+        {visible ? "隐藏日志" : "显示日志"}
         {logs.length > 0 && (
           <span className="text-muted-foreground/50">({logs.length})</span>
         )}
@@ -473,7 +403,7 @@ function InstallLogOutput() {
           className="mt-2 max-h-36 overflow-y-auto rounded-md border border-border bg-foreground/3 p-3 font-mono text-[11px] text-muted-foreground leading-relaxed"
         >
           {logs.length === 0 ? (
-            <span className="italic">Waiting for output...</span>
+            <span className="italic">等待输出...</span>
           ) : (
             logs.map((line, i) => (
               <div key={i} className="whitespace-pre-wrap break-all">
@@ -501,9 +431,9 @@ export function ClaudeSetup({
   onCancel,
 }: ClaudeSetupProps = {}) {
   const [provider, setProvider] = useState<"claude-code" | "openai-compatible">(
-    "claude-code",
+    "openai-compatible",
   );
-  const [providerPreset, setProviderPreset] = useState("anthropic-direct");
+  const [providerPreset, setProviderPreset] = useState("deepseek");
   const [apiKey, setApiKey] = useState("");
   const [baseUrl, setBaseUrl] = useState("");
   const [model, setModel] = useState("");
@@ -693,8 +623,8 @@ export function ClaudeSetup({
           <div className="min-w-0 space-y-2">
             <Label className="text-xs">
               {selectedProvider === "openai-compatible"
-                ? "Model Provider"
-                : "Provider"}
+                ? "模型提供商"
+                : "提供商"}
             </Label>
             <div className="grid min-w-0 grid-cols-2 gap-2">
               {providerCards.map((card) => {
@@ -750,8 +680,8 @@ export function ClaudeSetup({
           <div className="min-w-0 space-y-1.5">
             <Label htmlFor="anthropic-api-key" className="text-xs">
               {selectedProvider === "openai-compatible"
-                ? "Provider API Key"
-                : "Anthropic / Proxy Key"}
+                ? "API 密钥"
+                : "Anthropic / 代理密钥"}
             </Label>
             <Input
               id="anthropic-api-key"
@@ -759,9 +689,9 @@ export function ClaudeSetup({
               placeholder={
                 selectedProvider === "openai-compatible"
                   ? apiKeyOptional
-                    ? "Optional for local Ollama"
+                    ? "本地 Ollama 无需填写"
                     : "sk-..."
-                  : "sk-ant-... or provider key"
+                  : "sk-ant-... 或代理密钥"
               }
               value={apiKey}
               onChange={(event) => {
@@ -775,30 +705,24 @@ export function ClaudeSetup({
             <p className="text-[11px] text-muted-foreground">
               {selectedProvider === "openai-compatible"
                 ? apiKeyOptional
-                  ? "Ollama runs locally and normally does not require an API key."
-                  : "Use the API key from your model provider."
-                : "Anthropic keys start with sk-ant-. Claude-compatible proxies can use their own key format."}
+                  ? "Ollama 在本地运行，通常无需 API 密钥。"
+                  : "请填写模型提供商的 API 密钥。"
+                : "Anthropic 密钥以 sk-ant- 开头。兼容代理可使用自有密钥格式。"}
             </p>
           </div>
 
           <div className="min-w-0 space-y-1.5">
             <Label htmlFor="anthropic-base-url" className="text-xs">
               {isNativeAnthropicPreset(activeCardId)
-                ? "Base URL (Anthropic)"
-                : "Base URL"}
+                ? "接口地址 (Anthropic 兼容)"
+                : "接口地址"}
             </Label>
             <Input
               id="anthropic-base-url"
               type="url"
               placeholder={
                 selectedProvider === "openai-compatible"
-                  ? activeCardId === "deepseek"
-                    ? DEEPSEEK_ANTHROPIC_BASE_URL
-                    : activeCardId === "qwen"
-                      ? QWEN_ANTHROPIC_BASE_URL
-                      : activeCardId === "moonshot"
-                        ? MOONSHOT_ANTHROPIC_BASE_URL
-                        : "https://dashscope.aliyuncs.com/compatible-mode/v1"
+                  ? (OPENAI_COMPATIBLE_PRESETS.find((p) => p.id === activeCardId)?.baseUrl ?? "https://api.deepseek.com/v1")
                   : "https://mg.aid.pub/claude-proxy"
               }
               value={baseUrl}
@@ -836,14 +760,8 @@ export function ClaudeSetup({
             />
             <p className="text-[11px] text-muted-foreground">
               {selectedProvider === "openai-compatible"
-                ? activeCardId === "deepseek"
-                  ? "DeepSeek runs through its native Anthropic-compatible Claude Code route."
-                  : activeCardId === "qwen"
-                    ? "Qwen runs through its native Anthropic-compatible Claude Code route."
-                    : activeCardId === "moonshot"
-                      ? "Kimi runs through its native Anthropic-compatible Claude Code route."
-                      : "Use either the API root or a full /chat/completions URL."
-                : "Leave blank for Anthropic direct API."}
+                ? "可填写 API 根地址或完整的 /chat/completions URL。"
+                : "留空即为 Anthropic 官方 API。"}
             </p>
           </div>
 
@@ -851,7 +769,7 @@ export function ClaudeSetup({
             <div className="min-w-0 space-y-1.5">
               <div className="flex items-center justify-between gap-2">
                 <Label htmlFor="provider-model" className="text-xs">
-                  Model
+                  模型
                 </Label>
                 <Button
                   type="button"
@@ -871,7 +789,7 @@ export function ClaudeSetup({
                   ) : (
                     <RefreshCwIcon className="size-3" />
                   )}
-                  Fetch Models
+                  获取模型列表
                 </Button>
               </div>
               {modelOptions.length > 0 ? (
@@ -883,7 +801,7 @@ export function ClaudeSetup({
                   disabled={isSavingApiKey}
                 >
                   <SelectTrigger id="provider-model" className="h-9 w-full">
-                    <SelectValue placeholder="Select a model" />
+                    <SelectValue placeholder="选择模型" />
                   </SelectTrigger>
                   <SelectContent>
                     {modelOptions.map((item) => (
@@ -904,7 +822,7 @@ export function ClaudeSetup({
                 <Input
                   id="provider-model"
                   type="text"
-                  placeholder="Fetch models, or enter qwen3-coder-plus, deepseek-v4-pro, glm-5.1, ..."
+                  placeholder="点击获取模型列表，或输入 deepseek-chat, qwen3-coder-plus, glm-5.1 ..."
                   value={model}
                   onChange={(event) => {
                     setModel(event.target.value);
@@ -920,12 +838,12 @@ export function ClaudeSetup({
               )}
               <p className="text-[11px] text-muted-foreground">
                 {activeCardId === "deepseek"
-                  ? "Fetches DeepSeek models from the matching provider model endpoint."
+                  ? "从 DeepSeek 接口获取可用模型列表。"
                   : activeCardId === "qwen"
-                    ? "Fetches Qwen models from the matching DashScope model endpoint."
+                    ? "从 DashScope 接口获取通义千问可用模型。"
                     : activeCardId === "moonshot"
-                      ? "Fetches Kimi models from the matching Moonshot model endpoint."
-                      : "Fetches the provider's real /models list when available."}
+                      ? "从 Moonshot 接口获取 Kimi 可用模型。"
+                      : "从提供商的 /models 接口获取可用模型列表。"}
               </p>
             </div>
           )}
@@ -953,13 +871,13 @@ export function ClaudeSetup({
             )}
             {isSavingApiKey
               ? selectedProvider === "openai-compatible"
-                ? "Verifying..."
-                : "Saving..."
+                ? "验证中..."
+                : "保存中..."
               : selectedProvider === "openai-compatible"
                 ? apiKeyOptional
-                  ? "Verify & Use Local Provider"
-                  : "Verify & Use API Key"
-                : "Use API Key"}
+                  ? "验证并使用本地模型"
+                  : "验证并使用此密钥"
+                : "使用 API 密钥"}
           </Button>
         </form>
 
@@ -967,7 +885,7 @@ export function ClaudeSetup({
           <>
             <div className="flex items-center gap-2">
               <div className="h-px flex-1 bg-border" />
-              <span className="text-[11px] text-muted-foreground">or</span>
+              <span className="text-[11px] text-muted-foreground">或</span>
               <div className="h-px flex-1 bg-border" />
             </div>
 
@@ -979,7 +897,7 @@ export function ClaudeSetup({
               disabled={isSavingApiKey}
             >
               <LogInIcon className="size-3.5" />
-              Sign in with Browser
+              浏览器登录
             </Button>
           </>
         )}
@@ -999,7 +917,7 @@ export function ClaudeSetup({
       >
         <LoaderIcon className="size-4 animate-spin text-muted-foreground" />
         <span className="text-muted-foreground text-sm">
-          Checking Claude Code...
+          正在检测 Claude Code...
         </span>
       </div>
     );
@@ -1011,9 +929,9 @@ export function ClaudeSetup({
         <div className="flex items-center gap-2">
           <GitBranchIcon className="size-5 shrink-0 text-amber-600" />
           <div>
-            <p className="font-medium text-sm">Install Git first</p>
+            <p className="font-medium text-sm">请先安装 Git</p>
             <p className="text-muted-foreground text-xs">
-              Claude Code needs Git for Windows before providers can be added.
+              Claude Code 需要 Git for Windows 才能添加模型提供商。
             </p>
           </div>
         </div>
@@ -1026,7 +944,7 @@ export function ClaudeSetup({
           }}
         >
           <ExternalLinkIcon className="size-3.5" />
-          Download Git for Windows
+          下载 Git for Windows
         </Button>
         <Button
           size="sm"
@@ -1035,7 +953,7 @@ export function ClaudeSetup({
           onClick={checkStatus}
         >
           <RefreshCwIcon className="size-3.5" />
-          I've installed Git
+          我已安装 Git
         </Button>
       </div>
     );
@@ -1043,20 +961,21 @@ export function ClaudeSetup({
 
   if (variant === "provider-dialog" && status === "not-installed") {
     return (
-      <div className={setupSurfaceClass()}>
+      <div className="min-w-0 max-w-full space-y-3 overflow-hidden">
+        {renderApiKeyForm({ forceOpenAiCompatible: true })}
         <div className="flex items-center gap-2">
-          <DownloadIcon className="size-5 shrink-0 text-muted-foreground" />
-          <div>
-            <p className="font-medium text-sm">Install Claude Code first</p>
-            <p className="text-muted-foreground text-xs">
-              AI providers can be configured after the Claude Code CLI is
-              installed.
-            </p>
-          </div>
+          <div className="h-px flex-1 bg-border" />
+          <span className="text-[11px] text-muted-foreground">或</span>
+          <div className="h-px flex-1 bg-border" />
         </div>
-        <Button size="sm" className="w-full gap-2" onClick={install}>
+        <Button
+          size="sm"
+          variant="outline"
+          className="w-full gap-2"
+          onClick={install}
+        >
           <DownloadIcon className="size-3.5" />
-          Install Claude Code
+          安装 Claude Code（完整功能）
         </Button>
       </div>
     );
@@ -1077,7 +996,7 @@ export function ClaudeSetup({
           }}
           disabled={isSavingApiKey}
         >
-          Cancel
+          取消
         </Button>
       </div>
     );
@@ -1094,7 +1013,7 @@ export function ClaudeSetup({
     const configuredProviderCount =
       openAiProviderCount + (includesClaudeProvider ? 1 : 0);
     const readyDetail = [
-      `${configuredProviderCount} provider${configuredProviderCount === 1 ? "" : "s"} configured`,
+      `已配置 ${configuredProviderCount} 个提供商`,
       version ? `Claude Code ${version}` : null,
       !isDirectProvider && accountEmail ? accountEmail : null,
     ]
@@ -1109,7 +1028,7 @@ export function ClaudeSetup({
             <CheckCircle2Icon className="size-5 shrink-0 text-green-600" />
             <div className="min-w-0 flex-1">
               <p className="font-medium text-sm">
-                {isDirectProvider ? "Update AI Provider" : "Update Claude Code"}
+                {isDirectProvider ? "更新 AI 提供商" : "更新 Claude Code"}
               </p>
               <p className="truncate text-muted-foreground text-xs">
                 {readyDetail}
@@ -1129,7 +1048,7 @@ export function ClaudeSetup({
               }}
               disabled={isSavingApiKey || isClearingApiKey}
             >
-              Cancel
+              取消
             </Button>
             <Button
               type="button"
@@ -1144,7 +1063,7 @@ export function ClaudeSetup({
               ) : (
                 <Trash2Icon className="size-3.5" />
               )}
-              Forget Provider
+              移除提供商
             </Button>
           </div>
         </div>
@@ -1165,7 +1084,7 @@ export function ClaudeSetup({
           <div className="min-w-0 flex-1">
             <div className="flex min-w-0 items-center gap-2">
               <span className="truncate font-semibold text-sm">
-                AI Providers
+                AI 模型提供商
               </span>
               <span className="shrink-0 rounded-md bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground">
                 {configuredProviderCount}
@@ -1182,8 +1101,8 @@ export function ClaudeSetup({
             className="h-8 shrink-0 gap-1.5 rounded-md px-2.5 text-xs"
             onClick={() => beginProviderEdit(isDirectProvider)}
           >
-            <RefreshCwIcon className="size-3" />
-            Add
+            <PlusIcon className="size-3" />
+            添加模型
           </Button>
           <Button
             type="button"
@@ -1198,7 +1117,7 @@ export function ClaudeSetup({
             ) : (
               <Trash2Icon className="size-3" />
             )}
-            Clear
+            清除
           </Button>
         </div>
 
@@ -1285,7 +1204,7 @@ export function ClaudeSetup({
       <div className={setupSurfaceClass()}>
         <div className="flex items-center gap-2">
           <TerminalIcon className="size-5 shrink-0 text-muted-foreground" />
-          <p className="font-medium text-sm">Installing Claude Code</p>
+          <p className="font-medium text-sm">正在安装 Claude Code</p>
         </div>
 
         <div className="space-y-0 pl-1">
@@ -1305,7 +1224,7 @@ export function ClaudeSetup({
       <div className={setupSurfaceClass()}>
         <div className="flex items-center gap-2">
           <LogInIcon className="size-5 shrink-0 text-muted-foreground" />
-          <p className="font-medium text-sm">Signing in to Claude</p>
+          <p className="font-medium text-sm">正在登录 Claude</p>
         </div>
 
         <div className="space-y-0 pl-1">
@@ -1315,7 +1234,7 @@ export function ClaudeSetup({
         </div>
 
         <p className="text-center text-[11px] text-muted-foreground">
-          Complete the sign-in in your browser to continue.
+          请在浏览器中完成登录以继续。
         </p>
       </div>
     );
@@ -1329,7 +1248,7 @@ export function ClaudeSetup({
         <div className="flex items-center gap-2">
           <AlertCircleIcon className="size-5 shrink-0 text-destructive" />
           <p className="font-medium text-sm">
-            {hasInstallSteps ? "Installation Failed" : "Setup Error"}
+            {hasInstallSteps ? "安装失败" : "设置错误"}
           </p>
         </div>
 
@@ -1357,7 +1276,7 @@ export function ClaudeSetup({
             onClick={hasInstallSteps ? install : checkStatus}
           >
             <RefreshCwIcon className="size-3.5" />
-            {hasInstallSteps ? "Retry Installation" : "Retry"}
+            {hasInstallSteps ? "重试安装" : "重试"}
           </Button>
           {!hasInstallSteps && (
             <Button
@@ -1369,7 +1288,7 @@ export function ClaudeSetup({
               }}
             >
               <ExternalLinkIcon className="size-3.5" />
-              Setup Guide
+              安装指南
             </Button>
           )}
         </div>
@@ -1383,10 +1302,9 @@ export function ClaudeSetup({
         <div className="flex items-center gap-2">
           <GitBranchIcon className="size-5 shrink-0 text-amber-600" />
           <div>
-            <p className="font-medium text-sm">Install Git first</p>
+            <p className="font-medium text-sm">请先安装 Git</p>
             <p className="text-muted-foreground text-xs">
-              Git for Windows is required before Claude Code can be installed
-              and providers can be configured.
+              需要先安装 Git for Windows，才能安装 Claude Code 并配置模型提供商。
             </p>
           </div>
         </div>
@@ -1399,7 +1317,7 @@ export function ClaudeSetup({
           }}
         >
           <ExternalLinkIcon className="size-3.5" />
-          Download Git for Windows
+          下载 Git for Windows
         </Button>
         <Button
           size="sm"
@@ -1408,7 +1326,7 @@ export function ClaudeSetup({
           onClick={checkStatus}
         >
           <RefreshCwIcon className="size-3.5" />
-          I've installed Git
+          我已安装 Git
         </Button>
       </div>
     );
@@ -1418,25 +1336,34 @@ export function ClaudeSetup({
     return (
       <div className={setupSurfaceClass()}>
         <div className="flex items-center gap-2">
-          <DownloadIcon className="size-5 shrink-0 text-muted-foreground" />
+          <KeyRoundIcon className="size-5 shrink-0 text-muted-foreground" />
           <div>
-            <p className="font-medium text-sm">Install Claude Code first</p>
+            <p className="font-medium text-sm">连接 AI 模型</p>
             <p className="text-muted-foreground text-xs">
-              Provider keys can be added after the Claude Code CLI is installed.
+              直接配置 API 密钥即可开始对话，或安装 Claude Code 获取完整工具链。
             </p>
           </div>
         </div>
+
+        {renderApiKeyForm({ forceOpenAiCompatible: true })}
+
+        <div className="flex items-center gap-2">
+          <div className="h-px flex-1 bg-border" />
+          <span className="text-[11px] text-muted-foreground">或</span>
+          <div className="h-px flex-1 bg-border" />
+        </div>
+
         <Button
           size="sm"
-          variant="default"
+          variant="outline"
           className="w-full gap-2"
           onClick={install}
         >
           <DownloadIcon className="size-3.5" />
-          Install Claude Code
+          安装 Claude Code（完整功能）
         </Button>
         <p className="text-center text-[11px] text-muted-foreground">
-          Installs to ~/.local/bin/claude
+          安装 CLI 可解锁高级工具：Shell 执行、多文件搜索、Git 操作等。
         </p>
       </div>
     );
@@ -1448,15 +1375,15 @@ export function ClaudeSetup({
         <div className="flex items-center gap-2">
           <KeyRoundIcon className="size-5 shrink-0 text-muted-foreground" />
           <div>
-            <p className="font-medium text-sm">Connect Claude</p>
+            <p className="font-medium text-sm">连接 AI 模型</p>
             <p className="text-muted-foreground text-xs">
-              Use an Anthropic key, an external API proxy, or browser sign-in.
+              使用 DeepSeek、通义千问等 API 密钥，或 Anthropic 密钥/浏览器登录。
             </p>
           </div>
         </div>
         {version && (
           <p className="text-muted-foreground text-xs">
-            Claude Code {version} installed
+            Claude Code {version} 已安装
           </p>
         )}
 

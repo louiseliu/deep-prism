@@ -294,8 +294,8 @@ function LayoutPaneSwitcher({
         buttonClassName,
       )}
       onClick={onQuickToggleSidebar}
-      title="Layout"
-      aria-label="Layout"
+      title="布局"
+      aria-label="布局"
     >
       <PanelLeftIcon
         className={cn(
@@ -320,7 +320,7 @@ function LayoutPaneSwitcher({
         <div className="space-y-1">
           <LayoutToggleRow
             icon={FileCodeIcon}
-            label="Code"
+            label="代码"
             checked={controls.codeVisible}
             onCheckedChange={controls.setCodeVisible}
           />
@@ -332,7 +332,7 @@ function LayoutPaneSwitcher({
           />
           <LayoutToggleRow
             icon={PanelLeftIcon}
-            label="Sidebar"
+            label="侧边栏"
             checked={controls.sidebarVisible}
             onCheckedChange={controls.setSidebarVisible}
           />
@@ -1151,8 +1151,8 @@ export function Sidebar({
           size="icon"
           className="size-7 transition-transform duration-300 ease-in-out hover:scale-105"
           onClick={onToggleCollapsed}
-          title="Files"
-          aria-label="Expand Files"
+          title="文件"
+          aria-label="展开文件"
         >
           <FolderIcon className="size-3.5" />
         </Button>
@@ -1161,8 +1161,8 @@ export function Sidebar({
           size="icon"
           className="size-7 transition-transform duration-300 ease-in-out hover:scale-105"
           onClick={onToggleCollapsed}
-          title="Outline"
-          aria-label="Expand Outline"
+          title="大纲"
+          aria-label="展开大纲"
         >
           <ListIcon className="size-3.5" />
         </Button>
@@ -1171,8 +1171,8 @@ export function Sidebar({
           size="icon"
           className="size-7 transition-transform duration-300 ease-in-out hover:scale-105"
           onClick={onToggleCollapsed}
-          title="Zotero"
-          aria-label="Expand Zotero"
+          title="Zotero 文献"
+          aria-label="展开 Zotero"
         >
           <FileTextIcon className="size-3.5" />
         </Button>
@@ -1181,8 +1181,8 @@ export function Sidebar({
           size="icon"
           className="size-7 transition-transform duration-300 ease-in-out hover:scale-105"
           onClick={onToggleCollapsed}
-          title="Environment"
-          aria-label="Expand Environment"
+          title="环境"
+          aria-label="展开环境"
         >
           <AppWindowIcon className="size-3.5" />
         </Button>
@@ -1193,8 +1193,8 @@ export function Sidebar({
           size="icon"
           className="size-7 transition-transform duration-300 ease-in-out hover:scale-105"
           onClick={closeProject}
-          title="Close Project"
-          aria-label="Close Project"
+          title="关闭项目"
+          aria-label="关闭项目"
         >
           <HomeIcon className="size-3.5" />
         </Button>
@@ -1233,8 +1233,8 @@ export function Sidebar({
                 size="icon"
                 className="size-6 transition-all duration-150 ease-out hover:scale-105"
                 onClick={closeProject}
-                title="Close Project"
-                aria-label="Close Project"
+                title="关闭项目"
+                aria-label="关闭项目"
               >
                 <HomeIcon className="size-3.5" />
               </Button>
@@ -1249,8 +1249,8 @@ export function Sidebar({
               )}
               onClick={openProjectRenameDialog}
               disabled={!projectRoot}
-              title={projectRoot ? "Rename project folder" : undefined}
-              aria-label="Rename project folder"
+              title={projectRoot ? "重命名项目文件夹" : undefined}
+              aria-label="重命名项目文件夹"
             >
               <span className="block truncate">{projectName}</span>
             </button>
@@ -1285,7 +1285,7 @@ export function Sidebar({
                       variant="ghost"
                       size="icon"
                       className="size-5"
-                      title="Refresh"
+                      title="刷新"
                       disabled={isRefreshingFiles}
                       onClick={() => void runRefreshFiles()}
                     >
@@ -1302,7 +1302,7 @@ export function Sidebar({
                           variant="ghost"
                           size="icon"
                           className="size-5"
-                          title="Add"
+                          title="添加"
                         >
                           <PlusIcon className="size-3" />
                         </Button>
@@ -1310,16 +1310,16 @@ export function Sidebar({
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => openNewFileDialog()}>
                           <FileTextIcon className="mr-2 size-4" />
-                          New LaTeX File
+                          新建 LaTeX 文件
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => openNewFolderDialog()}>
                           <FolderPlusIcon className="mr-2 size-4" />
-                          New Folder
+                          新建文件夹
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => handleImport()}>
                           <UploadIcon className="mr-2 size-4" />
-                          Import File
+                          导入文件
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -1368,16 +1368,16 @@ export function Sidebar({
                     <ContextMenuContent>
                       <ContextMenuItem onClick={() => openNewFileDialog()}>
                         <FileTextIcon className="mr-2 size-4" />
-                        New File
+                        新建文件
                       </ContextMenuItem>
                       <ContextMenuItem onClick={() => openNewFolderDialog()}>
                         <FolderPlusIcon className="mr-2 size-4" />
-                        New Folder
+                        新建文件夹
                       </ContextMenuItem>
                       <ContextMenuSeparator />
                       <ContextMenuItem onClick={() => handleImport()}>
                         <UploadIcon className="mr-2 size-4" />
-                        Import File
+                        导入文件
                       </ContextMenuItem>
                     </ContextMenuContent>
                   </ContextMenu>
@@ -1454,7 +1454,7 @@ export function Sidebar({
 
           {/* Footer */}
           <div className="flex h-9 items-center justify-between border-sidebar-border border-t px-3 text-muted-foreground text-xs">
-            <span className="truncate">ClaudePrism v{appVersion}</span>
+            <span className="truncate">DeepPrism v{appVersion}</span>
             <div className="flex shrink-0 items-center gap-1">
               <Button variant="ghost" size="icon" className="size-6" asChild>
                 <a
@@ -1477,10 +1477,10 @@ export function Sidebar({
                 }}
                 title={
                   theme === "system"
-                    ? "System theme"
+                    ? "跟随系统"
                     : theme === "light"
-                      ? "Light mode"
-                      : "Dark mode"
+                      ? "浅色模式"
+                      : "深色模式"
                 }
               >
                 {theme === "system" ? (
@@ -1617,7 +1617,7 @@ export function Sidebar({
                   onClick={handleProjectRename}
                   disabled={!projectRenameValue.trim() || isRenamingProject}
                 >
-                  {isRenamingProject ? "Renaming..." : "Rename"}
+                  {isRenamingProject ? "重命名中..." : "重命名"}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -1670,12 +1670,12 @@ export function Sidebar({
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
                 <DialogTitle>
-                  Delete {pendingDeleteCount === 1 ? "Item" : "Items"}
+                  删除{pendingDeleteCount === 1 ? "文件" : "文件"}
                 </DialogTitle>
                 <DialogDescription>
                   {pendingDeleteCount === 1
-                    ? "This item will be removed from disk."
-                    : `${pendingDeleteCount} selected items will be removed from disk.`}
+                    ? "此文件将从磁盘中永久删除。"
+                    : `选中的 ${pendingDeleteCount} 个文件将从磁盘中永久删除。`}
                 </DialogDescription>
               </DialogHeader>
               {pendingDeletePreview.length > 0 && (
@@ -1686,13 +1686,13 @@ export function Sidebar({
                         key={fileTreeSelectionKey(item)}
                         className="min-w-0 break-all font-mono text-muted-foreground text-xs"
                       >
-                        {item.type === "folder" ? "Folder" : "File"}:{" "}
+                        {item.type === "folder" ? "文件夹" : "文件"}:{" "}
                         {item.path}
                       </div>
                     ))}
                     {pendingDeleteCount > pendingDeletePreview.length && (
                       <div className="text-muted-foreground text-xs">
-                        +{pendingDeleteCount - pendingDeletePreview.length} more
+                        还有 {pendingDeleteCount - pendingDeletePreview.length} 个
                       </div>
                     )}
                   </div>
@@ -1713,14 +1713,14 @@ export function Sidebar({
                   }}
                   disabled={isDeletingSelection}
                 >
-                  Cancel
+                  取消
                 </Button>
                 <Button
                   variant="destructive"
                   onClick={() => void confirmDeleteSelection()}
                   disabled={!pendingDeleteItems || isDeletingSelection}
                 >
-                  {isDeletingSelection ? "Deleting..." : "Delete"}
+                  {isDeletingSelection ? "删除中..." : "删除"}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -1869,15 +1869,15 @@ function FileTreeNode({
             <ContextMenuContent>
               <ContextMenuItem onClick={() => onNewFile(node.relativePath)}>
                 <FileTextIcon className="mr-2 size-4" />
-                New File Here
+                在此处新建文件
               </ContextMenuItem>
               <ContextMenuItem onClick={() => onNewFolder(node.relativePath)}>
                 <FolderPlusIcon className="mr-2 size-4" />
-                New Folder
+                新建文件夹
               </ContextMenuItem>
               <ContextMenuItem onClick={() => onImport(node.relativePath)}>
                 <UploadIcon className="mr-2 size-4" />
-                Import File Here
+                导入文件到此处
               </ContextMenuItem>
               <ContextMenuSeparator />
               <ContextMenuItem
@@ -1885,7 +1885,7 @@ function FileTreeNode({
                 disabled={batchOperation}
               >
                 <PencilIcon className="mr-2 size-4" />
-                Rename
+                重命名
               </ContextMenuItem>
               <ContextMenuItem
                 variant="destructive"
@@ -1894,8 +1894,8 @@ function FileTreeNode({
               >
                 <Trash2Icon className="mr-2 size-4" />
                 {batchOperation
-                  ? `Delete ${effectiveSelectionCount} selected`
-                  : "Delete"}
+                  ? `删除 ${effectiveSelectionCount} 个选中项`
+                  : "删除"}
               </ContextMenuItem>
             </ContextMenuContent>
           </ContextMenu>
@@ -1965,7 +1965,7 @@ function FileTreeNode({
             {file.isDirty && (
               <span
                 className="ml-auto size-2 shrink-0 rounded-full bg-blue-500"
-                title="Modified"
+                title="已修改"
               />
             )}
           </button>
@@ -1976,7 +1976,7 @@ function FileTreeNode({
             disabled={batchOperation}
           >
             <PencilIcon className="mr-2 size-4" />
-            Rename
+            重命名
           </ContextMenuItem>
           <ContextMenuItem
             variant="destructive"
@@ -1985,8 +1985,8 @@ function FileTreeNode({
           >
             <Trash2Icon className="mr-2 size-4" />
             {batchOperation
-              ? `Delete ${effectiveSelectionCount} selected`
-              : "Delete"}
+              ? `删除 ${effectiveSelectionCount} 个选中项`
+              : "删除"}
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
@@ -2051,22 +2051,22 @@ function EnvironmentSection({
   }, [showOnboarding, OnboardingComponent]);
 
   const pythonLabel = venvReady
-    ? "Active"
+    ? "已激活"
     : uvStatus === "not-installed"
-      ? "Not installed"
+      ? "未安装"
       : uvStatus === "ready"
-        ? "No venv"
+        ? "无虚拟环境"
         : "";
   const skillsLabel = skillsStatus?.installed
-    ? `${skillsStatus.skill_count} skills`
-    : "Not installed";
+    ? `${skillsStatus.skill_count} 个技能`
+    : "未安装";
 
   return (
     <>
       <div className="border-sidebar-border border-t">
         <div className="flex h-8 shrink-0 items-center justify-center gap-2 px-3">
           <AppWindowIcon className="size-3.5 text-muted-foreground" />
-          <span className="font-medium text-xs">Environment</span>
+          <span className="font-medium text-xs">运行环境</span>
         </div>
         <div className="space-y-0.5 px-1 pb-1.5">
           {/* Python / uv row */}
@@ -2103,7 +2103,7 @@ function EnvironmentSection({
                   : "text-muted-foreground",
               )}
             />
-            <span className="min-w-0 flex-1 truncate text-xs">Skills</span>
+            <span className="min-w-0 flex-1 truncate text-xs">技能</span>
             <span
               className={cn(
                 "shrink-0 text-xs",

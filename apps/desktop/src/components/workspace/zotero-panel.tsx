@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   SettingsIcon,
   DownloadIcon,
@@ -7,14 +7,18 @@ import {
   RefreshCwIcon,
   ExternalLinkIcon,
   LinkIcon,
+  KeyIcon,
   UserIcon,
   FolderIcon,
   LibraryIcon,
   CheckIcon,
   XIcon,
+  ChevronRightIcon,
+  FileTextIcon,
 } from "lucide-react";
 import { useZoteroStore, type CollectionSyncInfo } from "@/stores/zotero-store";
 import { useDocumentStore } from "@/stores/document-store";
+import { fetchLocalItems, type ZoteroItem } from "@/lib/zotero-api";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -48,6 +52,7 @@ export function ZoteroPanel() {
     : {};
   const error = useZoteroStore((s) => s.error);
   const collections = useZoteroStore((s) => s.collections);
+  const libraryItemCount = useZoteroStore((s) => s.libraryItemCount);
   const isLoadingCollections = useZoteroStore((s) => s.isLoadingCollections);
   const connectWithOAuth = useZoteroStore((s) => s.connectWithOAuth);
   const cancelConnect = useZoteroStore((s) => s.cancelConnect);
@@ -78,6 +83,7 @@ export function ZoteroPanel() {
             onConnect={connectWithOAuth}
             onCancel={cancelConnect}
             onApiKey={() => setConnectDialogOpen(true)}
+            onLocalConnect={useZoteroStore.getState().connectLocalClient}
           />
         ) : (
           <div className="py-0.5">
@@ -94,18 +100,19 @@ export function ZoteroPanel() {
                 <LoaderIcon className="size-3 animate-spin" />
                 {syncProgress
                   ? `${syncProgress.loaded}/${syncProgress.total}`
-                  : "Syncing..."}
+                  : "同步中..."}
               </div>
             )}
 
             {/* My Library */}
             <CollectionRow
               collectionKey={null}
-              name="My Library"
+              name="我的文献库"
               icon={<LibraryIcon className="size-3.5" />}
+              itemCount={libraryItemCount || undefined}
               syncInfo={syncedCollections[MYLIB_KEY]}
               isSyncing={isSyncing === MYLIB_KEY}
-              onImport={() => importCollectionToBib(null, "My Library")}
+              onImport={() => importCollectionToBib(null, "我的文献库")}
               onSync={() => syncCollectionBib(null)}
               onRemove={() => removeCollection(null)}
               disabled={!!isSyncing}
@@ -118,7 +125,7 @@ export function ZoteroPanel() {
             {isLoadingCollections ? (
               <div className="flex items-center gap-1 px-2 py-1 text-muted-foreground text-xs">
                 <LoaderIcon className="size-3 animate-spin" />
-                Loading...
+                加载中...
               </div>
             ) : (
               topCollections.map((col) => (
@@ -163,7 +170,7 @@ export function ZoteroHeader() {
         <span
           className={cn(
             "size-1.5 rounded-full",
-            isAuthenticated ? "bg-foreground" : "bg-muted-foreground/30",
+            isAuthenticated ? "bg-green-500" : "bg-muted-foreground/30",
           )}
         />
         <span className="font-medium text-xs">Zotero</span>
@@ -173,7 +180,7 @@ export function ZoteroHeader() {
           <button
             className="rounded p-1 text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
             onClick={loadCollections}
-            title="Refresh"
+            title="刷新"
           >
             <RefreshCwIcon
               className={cn("size-3.5", isLoadingCollections && "animate-spin")}
@@ -195,7 +202,7 @@ export function ZoteroHeader() {
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={disconnect}>
                 <LogOutIcon className="mr-2 size-3.5" />
-                Disconnect
+                断开连接
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -213,12 +220,14 @@ function NotConnectedView({
   onConnect,
   onCancel,
   onApiKey,
+  onLocalConnect,
 }: {
   isValidating: boolean;
   error: string | null;
   onConnect: () => void;
   onCancel: () => void;
   onApiKey: () => void;
+  onLocalConnect: () => Promise<boolean>;
 }) {
   return (
     <div className="flex flex-col items-center gap-2 px-3 py-4 text-center">
@@ -226,37 +235,46 @@ function NotConnectedView({
         <LinkIcon className="size-4 text-muted-foreground" />
       </div>
       <p className="text-[11px] text-muted-foreground leading-relaxed">
-        Connect Zotero to import references.
+        连接 Zotero 导入参考文献
       </p>
       {isValidating ? (
         <div className="flex flex-col items-center gap-1">
           <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
             <LoaderIcon className="size-3 animate-spin" />
-            Authorizing...
+            连接中...
           </div>
           <button
             className="text-[10px] text-muted-foreground underline"
             onClick={onCancel}
           >
-            Cancel
+            取消
           </button>
         </div>
       ) : (
-        <div className="flex flex-col items-center gap-1">
+        <div className="flex flex-col items-center gap-1.5">
           <Button
             size="sm"
             className="h-6 gap-1 text-[11px]"
-            onClick={onConnect}
+            onClick={() => { onLocalConnect(); }}
           >
-            <ExternalLinkIcon className="size-3" />
-            Connect
+            <LinkIcon className="size-3" />
+            连接本地客户端
           </Button>
-          <button
-            className="text-[10px] text-muted-foreground underline"
-            onClick={onApiKey}
-          >
-            API key
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              className="text-[10px] text-muted-foreground underline"
+              onClick={onApiKey}
+            >
+              API 密钥
+            </button>
+            <span className="text-[10px] text-muted-foreground/50">|</span>
+            <button
+              className="text-[10px] text-muted-foreground underline"
+              onClick={onConnect}
+            >
+              OAuth
+            </button>
+          </div>
         </div>
       )}
       {error && <p className="text-[10px] text-destructive">{error}</p>}
@@ -267,7 +285,7 @@ function NotConnectedView({
 // ─── Collection Row ───
 
 function CollectionRow({
-  collectionKey: _collectionKey,
+  collectionKey,
   name,
   icon,
   itemCount,
@@ -290,63 +308,133 @@ function CollectionRow({
   disabled: boolean;
 }) {
   const isSynced = !!syncInfo;
+  const apiKey = useZoteroStore((s) => s.apiKey);
+  const [expanded, setExpanded] = useState(false);
+  const [items, setItems] = useState<ZoteroItem[]>([]);
+  const [loadingItems, setLoadingItems] = useState(false);
+  const [totalItems, setTotalItems] = useState(0);
+
+  const loadItems = useCallback(async () => {
+    if (apiKey !== "__local__") return;
+    setLoadingItems(true);
+    try {
+      const result = await fetchLocalItems(collectionKey, 50, 0);
+      setItems(result.items);
+      setTotalItems(result.total);
+    } catch {
+      // ignore
+    } finally {
+      setLoadingItems(false);
+    }
+  }, [apiKey, collectionKey]);
+
+  const handleToggle = () => {
+    const next = !expanded;
+    setExpanded(next);
+    if (next && items.length === 0) {
+      loadItems();
+    }
+  };
 
   return (
-    <div className="group flex items-center gap-1.5 px-2 py-0.5">
-      <span className="shrink-0 text-muted-foreground">{icon}</span>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-1">
-          <span className="truncate text-foreground text-sm">{name}</span>
+    <div>
+      <div className="group flex items-center gap-1 px-2 py-0.5">
+        <button
+          className="shrink-0 rounded p-0.5 text-muted-foreground hover:text-foreground"
+          onClick={handleToggle}
+        >
+          <ChevronRightIcon
+            className={cn("size-3 transition-transform", expanded && "rotate-90")}
+          />
+        </button>
+        <span className="shrink-0 text-muted-foreground">{icon}</span>
+        <div className="min-w-0 flex-1" onClick={handleToggle} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter") handleToggle(); }}>
+          <div className="flex items-center gap-1">
+            <span className="truncate text-foreground text-sm">{name}</span>
+            {isSynced && (
+              <CheckIcon className="size-2.5 shrink-0 text-muted-foreground" />
+            )}
+          </div>
           {isSynced && (
-            <CheckIcon className="size-2.5 shrink-0 text-muted-foreground" />
+            <p className="truncate text-muted-foreground text-xs leading-none">
+              {syncInfo.bibFileName}
+            </p>
+          )}
+          {!isSynced && itemCount !== undefined && (
+            <p className="text-muted-foreground text-xs leading-none">
+              {itemCount} 条
+            </p>
           )}
         </div>
-        {isSynced && (
-          <p className="truncate text-muted-foreground text-xs leading-none">
-            {syncInfo.bibFileName}
-          </p>
-        )}
-        {!isSynced && itemCount !== undefined && (
-          <p className="text-muted-foreground text-xs leading-none">
-            {itemCount} items
-          </p>
-        )}
-      </div>
-      <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-        {isSynced ? (
-          <>
+        <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+          {isSynced ? (
+            <>
+              <button
+                className="rounded p-0.5 text-muted-foreground hover:bg-sidebar-accent hover:text-foreground disabled:opacity-30"
+                onClick={onSync}
+                disabled={disabled}
+                title="同步"
+              >
+                {isSyncing ? (
+                  <LoaderIcon className="size-3 animate-spin" />
+                ) : (
+                  <RefreshCwIcon className="size-3" />
+                )}
+              </button>
+              <button
+                className="rounded p-0.5 text-muted-foreground hover:bg-sidebar-accent hover:text-foreground disabled:opacity-30"
+                onClick={onRemove}
+                disabled={disabled}
+                title="移除"
+              >
+                <XIcon className="size-3" />
+              </button>
+            </>
+          ) : (
             <button
               className="rounded p-0.5 text-muted-foreground hover:bg-sidebar-accent hover:text-foreground disabled:opacity-30"
-              onClick={onSync}
+              onClick={onImport}
               disabled={disabled}
-              title="Sync"
+              title="导入"
             >
-              {isSyncing ? (
-                <LoaderIcon className="size-3 animate-spin" />
-              ) : (
-                <RefreshCwIcon className="size-3" />
+              <DownloadIcon className="size-3" />
+            </button>
+          )}
+        </div>
+      </div>
+      {expanded && (
+        <div className="ml-6 border-l border-sidebar-border pl-2">
+          {loadingItems ? (
+            <div className="flex items-center gap-1 py-1 text-muted-foreground text-xs">
+              <LoaderIcon className="size-3 animate-spin" />
+              加载中...
+            </div>
+          ) : items.length === 0 ? (
+            <p className="py-1 text-muted-foreground text-xs">暂无文献</p>
+          ) : (
+            <>
+              {items.map((item) => (
+                <div key={item.key} className="flex items-start gap-1.5 py-0.5">
+                  <FileTextIcon className="mt-0.5 size-3 shrink-0 text-muted-foreground" />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-foreground text-xs leading-snug">
+                      {item.title}
+                    </p>
+                    <p className="truncate text-muted-foreground text-[10px] leading-snug">
+                      {item.creators}{item.year ? ` (${item.year})` : ""}
+                    </p>
+                  </div>
+                </div>
+              ))}
+              {totalItems > items.length && (
+                <p className="py-0.5 text-muted-foreground text-[10px]">
+                  还有 {totalItems - items.length} 条...
+                </p>
               )}
-            </button>
-            <button
-              className="rounded p-0.5 text-muted-foreground hover:bg-sidebar-accent hover:text-foreground disabled:opacity-30"
-              onClick={onRemove}
-              disabled={disabled}
-              title="Remove"
-            >
-              <XIcon className="size-3" />
-            </button>
-          </>
-        ) : (
-          <button
-            className="rounded p-0.5 text-muted-foreground hover:bg-sidebar-accent hover:text-foreground disabled:opacity-30"
-            onClick={onImport}
-            disabled={disabled}
-            title="Import"
-          >
-            <DownloadIcon className="size-3" />
-          </button>
-        )}
-      </div>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -379,15 +467,15 @@ function ZoteroApiKeyDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Connect to Zotero</DialogTitle>
+          <DialogTitle>连接 Zotero</DialogTitle>
         </DialogHeader>
         <div className="space-y-3 py-4">
           <p className="text-muted-foreground text-sm">
-            Enter your Zotero API key.
+            输入你的 Zotero API 密钥。
           </p>
           <Input
             type="password"
-            placeholder="Zotero API Key"
+            placeholder="Zotero API 密钥"
             value={apiKey}
             onChange={(e) => setApiKey(e.target.value)}
             onKeyDown={(e) => {
@@ -397,7 +485,7 @@ function ZoteroApiKeyDialog({
           />
           {error && <p className="text-destructive text-xs">{error}</p>}
           <p className="text-muted-foreground text-xs">
-            Create a key at{" "}
+            在此创建密钥：{" "}
             <a
               href="https://www.zotero.org/settings/keys"
               target="_blank"
@@ -410,13 +498,13 @@ function ZoteroApiKeyDialog({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            取消
           </Button>
           <Button
             onClick={handleConnect}
             disabled={!apiKey.trim() || isValidating}
           >
-            {isValidating ? "Validating..." : "Connect"}
+            {isValidating ? "验证中..." : "连接"}
           </Button>
         </DialogFooter>
       </DialogContent>

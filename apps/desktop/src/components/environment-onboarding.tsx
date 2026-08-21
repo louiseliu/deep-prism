@@ -176,10 +176,10 @@ export function EnvironmentOnboarding() {
 
   const providerDetail = useMemo(() => {
     if (!isClaudeInstalled) {
-      return "Install Claude Code before adding a provider";
+      return "需先安装 Claude Code 才能添加服务商";
     }
     if (!isClaudeReady) {
-      return "Add an API key or sign in";
+      return "添加 API 密钥或登录";
     }
     const openAiProviderCount = Math.max(
       openAiCredentials.length,
@@ -188,7 +188,7 @@ export function EnvironmentOnboarding() {
     const includesClaudeProvider =
       claudeProviderConfigured || providerKind === "claude-code";
     const count = openAiProviderCount + (includesClaudeProvider ? 1 : 0);
-    return `${count} provider${count === 1 ? "" : "s"} configured`;
+    return `已配置 ${count} 个服务商`;
   }, [
     claudeProviderConfigured,
     isClaudeInstalled,
@@ -209,16 +209,15 @@ export function EnvironmentOnboarding() {
           <div className="flex flex-col items-center px-6 pt-6 pb-4 text-center">
             <img
               src="/icon-192.png"
-              alt="ClaudePrism"
+              alt="DeepPrism"
               className="size-14 object-contain"
             />
             <DialogHeader className="mt-3 items-center gap-1.5 text-center">
               <DialogTitle className="font-semibold text-xl">
-                ClaudePrism
+                DeepPrism
               </DialogTitle>
               <DialogDescription className="max-w-sm text-sm leading-relaxed">
-                Set up the local tools and model provider required before
-                entering the workspace.
+                设置进入工作区前所需的本地工具和模型服务商。
               </DialogDescription>
             </DialogHeader>
           </div>
@@ -239,18 +238,18 @@ export function EnvironmentOnboarding() {
                 title="Claude Code"
                 detail={
                   isClaudeInstalling
-                    ? "Installing..."
+                    ? "安装中..."
                     : claudeStatus === "checking"
-                      ? "Checking..."
+                      ? "检测中..."
                       : claudeStatus === "missing-git"
-                        ? "Git for Windows is required first"
+                        ? "需先安装 Git for Windows"
                         : claudeStatus === "not-installed"
-                          ? "Required for AI writing"
+                          ? "AI 写作所需"
                           : claudeStatus === "error"
-                            ? claudeError || "Installation needs attention"
+                            ? claudeError || "安装需要处理"
                             : claudeVersion
-                              ? `Installed ${claudeVersion}`
-                              : "Installed"
+                              ? `已安装 ${claudeVersion}`
+                              : "已安装"
                 }
                 action={
                   claudeStatus === "missing-git"
@@ -264,13 +263,13 @@ export function EnvironmentOnboarding() {
                     : claudeStatus === "not-installed" ||
                         claudeStatus === "error"
                       ? {
-                          label: isClaudeInstalling ? "Installing" : "Install",
+                          label: isClaudeInstalling ? "安装中" : "安装",
                           icon: isClaudeInstalling ? Loader2Icon : DownloadIcon,
                           loading: isClaudeInstalling,
                           onClick: installClaude,
                         }
                       : {
-                          label: "Check",
+                          label: "检测",
                           icon: RefreshCwIcon,
                           onClick: checkClaudeStatus,
                         }
@@ -291,25 +290,25 @@ export function EnvironmentOnboarding() {
                 title="Python (uv)"
                 detail={
                   isUvInstalling
-                    ? "Installing..."
+                    ? "安装中..."
                     : uvStatus === "checking"
-                      ? "Checking..."
+                      ? "检测中..."
                       : uvStatus === "not-installed"
-                        ? "Required for Python workflows"
+                        ? "Python 工作流所需"
                         : uvStatus === "error"
-                          ? uvError || "Installation needs attention"
-                          : uvVersion || "Installed"
+                          ? uvError || "安装需要处理"
+                          : uvVersion || "已安装"
                 }
                 action={
                   uvStatus === "not-installed" || uvStatus === "error"
                     ? {
-                        label: isUvInstalling ? "Installing" : "Install",
+                        label: isUvInstalling ? "安装中" : "安装",
                         icon: isUvInstalling ? Loader2Icon : DownloadIcon,
                         loading: isUvInstalling,
                         onClick: installUv,
                       }
                     : {
-                        label: "Check",
+                        label: "检测",
                         icon: RefreshCwIcon,
                         onClick: checkUvStatus,
                       }
@@ -327,17 +326,17 @@ export function EnvironmentOnboarding() {
                         : "blocked"
                 }
                 icon={KeyRoundIcon}
-                title="AI Provider"
+                title="AI 服务商"
                 detail={providerDetail}
                 action={
                   isClaudeInstalled
                     ? {
-                        label: isClaudeReady ? "Manage" : "Configure",
+                        label: isClaudeReady ? "管理" : "配置",
                         icon: KeyRoundIcon,
                         onClick: () => setProviderDialogOpen(true),
                       }
                     : {
-                        label: "Locked",
+                        label: "锁定",
                         icon: KeyRoundIcon,
                         disabled: true,
                       }
@@ -355,25 +354,25 @@ export function EnvironmentOnboarding() {
                         : "blocked"
                 }
                 icon={FlaskConicalIcon}
-                title="Scientific Skills"
+                title="科研技能"
                 detail={
                   skillsChecking
-                    ? "Checking..."
+                    ? "检测中..."
                     : skillsError
                       ? skillsError
                       : isSkillsReady
-                        ? `${skillsStatus?.skill_count ?? 0} skills installed`
-                        : "Required for scientific writing"
+                        ? `已安装 ${skillsStatus?.skill_count ?? 0} 项技能`
+                        : "学术写作所需"
                 }
                 action={
                   skillsError
                     ? {
-                        label: "Check",
+                        label: "检测",
                         icon: RefreshCwIcon,
                         onClick: checkSkillsStatus,
                       }
                     : {
-                        label: isSkillsReady ? "Manage" : "Install",
+                        label: isSkillsReady ? "管理" : "安装",
                         icon: isSkillsReady ? FlaskConicalIcon : DownloadIcon,
                         onClick: openSkillsDialog,
                         disabled: skillsChecking,
@@ -389,7 +388,7 @@ export function EnvironmentOnboarding() {
               className="h-10 min-w-28 justify-center rounded-full px-7"
               onClick={handleDone}
             >
-              Done
+              完成
             </Button>
           </div>
         </DialogContent>
@@ -398,9 +397,9 @@ export function EnvironmentOnboarding() {
       <Dialog open={providerDialogOpen} onOpenChange={setProviderDialogOpen}>
         <DialogContent className="max-h-[85vh] w-[min(42rem,calc(100vw-2rem))] overflow-y-auto overflow-x-hidden sm:max-w-none">
           <DialogHeader>
-            <DialogTitle>Add AI Provider</DialogTitle>
+            <DialogTitle>添加 AI 服务商</DialogTitle>
             <DialogDescription>
-              Configure Anthropic or another model provider for this project.
+              为此项目配置 Anthropic 或其他模型服务商。
             </DialogDescription>
           </DialogHeader>
           <ClaudeSetup

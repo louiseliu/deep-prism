@@ -1,8 +1,10 @@
 #![recursion_limit = "512"]
 
 mod anthropic_proxy;
+mod built_in_tools;
 mod claude;
 mod claude_process;
+mod direct_engine;
 mod history;
 mod latex;
 mod skills;
@@ -566,6 +568,7 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_process::init())
         .manage(claude::ClaudeProcessState::default())
+        .manage(direct_engine::DirectEngineState::default())
         .manage(latex::LatexCompilerState::default())
         .manage(zotero::ZoteroOAuthState::default())
         .setup(|app| {
@@ -626,6 +629,8 @@ pub fn run() {
             zotero::zotero_start_oauth,
             zotero::zotero_complete_oauth,
             zotero::zotero_cancel_oauth,
+            zotero::zotero_local_ping,
+            zotero::zotero_local_fetch,
             history::history_init,
             history::history_snapshot,
             history::history_list,

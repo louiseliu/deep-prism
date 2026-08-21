@@ -7,6 +7,23 @@ fn main() {
         }
     }
 
+    // On macOS, ensure ICU libraries are found by the linker.
+    // Required when icu4c is installed via Homebrew and not in system paths.
+    // We pass -L early via rustc-link-arg so the linker sees the search path
+    // before encountering -licuuc emitted by tectonic_bridge_icu.
+    #[cfg(target_os = "macos")]
+    {
+        if let Ok(output) = std::process::Command::new("pkg-config")
+            .args(["--variable=libdir", "icu-uc"])
+            .output()
+        {
+            let path = String::from_utf8_lossy(&output.stdout).trim().to_string();
+            if !path.is_empty() {
+                println!("cargo:rustc-link-arg=-L{path}");
+            }
+        }
+    }
+
     // On Linux, apply a version script to hide statically linked ICU/HarfBuzz/
     // FreeType/Fontconfig symbols from the dynamic symbol table.  This prevents
     // symbol collisions with the system copies loaded by WebKit2GTK (segfault).

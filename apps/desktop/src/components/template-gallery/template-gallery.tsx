@@ -47,8 +47,8 @@ export function TemplateGallery() {
   const heading = selectedCategory
     ? CATEGORY_LABELS[selectedCategory]
     : searchQuery
-      ? `Results for "${searchQuery}"`
-      : "All Templates";
+      ? `"${searchQuery}" 的搜索结果`
+      : "所有模板";
 
   return (
     <div className="flex h-full flex-col">
@@ -58,7 +58,7 @@ export function TemplateGallery() {
           <SearchIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             ref={searchRef}
-            placeholder="Search templates...  ⌘K"
+            placeholder="搜索模板...  ⌘K"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pr-8 pl-9"
@@ -87,10 +87,10 @@ export function TemplateGallery() {
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <SearchIcon className="mb-3 size-8 text-muted-foreground/40" />
               <p className="font-medium text-muted-foreground text-sm">
-                No templates found
+                未找到模板
               </p>
               <p className="mt-1 text-muted-foreground/70 text-xs">
-                Try a different search term or category
+                尝试不同的搜索词或分类
               </p>
             </div>
           ) : showGrouped ? (

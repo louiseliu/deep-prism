@@ -167,7 +167,7 @@ async fn route_request(request: &HttpRequest) -> String {
     if request.method == "GET" && path == "/" {
         return json_response(
             200,
-            &json!({ "ok": true, "service": "claude-prism-anthropic-proxy" }),
+            &json!({ "ok": true, "service": "deep-prism-anthropic-proxy" }),
         );
     }
 

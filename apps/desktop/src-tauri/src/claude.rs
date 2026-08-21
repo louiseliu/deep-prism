@@ -10,7 +10,7 @@ use std::fs::OpenOptions;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
-use tauri::{Emitter, WebviewWindow};
+use tauri::{Emitter, Manager, WebviewWindow};
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::process::Command;
 use tokio::sync::Mutex;
@@ -2015,6 +2015,9 @@ pub struct ClaudeStatus {
     /// Windows only: true when Git for Windows (git-bash) is not found.
     /// Claude Code requires git-bash to function on Windows.
     pub missing_git: bool,
+    /// Whether the Claude Code CLI binary is available on this system.
+    /// When false, only direct-API mode (no CLI) is available for OpenAI-compatible providers.
+    pub cli_available: bool,
 }
 
 /// Find the path to git-bash on Windows.
@@ -2084,16 +2087,34 @@ pub async fn check_claude_status() -> Result<ClaudeStatus, String> {
         .as_ref()
         .map(|credential| credential.base_url.clone());
 
-    // On Windows, check for Git for Windows first 鈥?Claude Code requires it.
     #[cfg(target_os = "windows")]
     let missing_git = find_git_bash().is_none();
     #[cfg(not(target_os = "windows"))]
     let missing_git = false;
 
+    let cli_available = find_claude_binary().is_ok();
+
     // Try to find binary
     let binary_path = match find_claude_binary() {
         Ok(path) => path,
         Err(_) => {
+            // CLI not found — if OpenAI-compatible credentials are configured,
+            // the user can still use the direct-engine (no CLI needed).
+            if openai_credential.is_some() {
+                return Ok(ClaudeStatus {
+                    installed: false,
+                    authenticated: true,
+                    binary_path: None,
+                    version: None,
+                    provider_kind: PROVIDER_OPENAI_COMPATIBLE.to_string(),
+                    account_email: None,
+                    provider_model,
+                    provider_base_url,
+                    claude_provider_configured,
+                    missing_git,
+                    cli_available: false,
+                });
+            }
             return Ok(ClaudeStatus {
                 installed: false,
                 authenticated: false,
@@ -2105,6 +2126,7 @@ pub async fn check_claude_status() -> Result<ClaudeStatus, String> {
                 provider_base_url: provider_base_url.clone(),
                 claude_provider_configured,
                 missing_git,
+                cli_available: false,
             });
         }
     };
@@ -2117,8 +2139,23 @@ pub async fn check_claude_status() -> Result<ClaudeStatus, String> {
             Some(String::from_utf8_lossy(&output.stdout).trim().to_string())
         }
         _ => {
-            // Binary found but doesn't work 鈥?on Windows this is often because
-            // Git for Windows is missing (Claude Code needs git-bash).
+            // Binary found but doesn't work — if OpenAI credentials exist,
+            // still allow direct-engine usage.
+            if openai_credential.is_some() {
+                return Ok(ClaudeStatus {
+                    installed: false,
+                    authenticated: true,
+                    binary_path: None,
+                    version: None,
+                    provider_kind: PROVIDER_OPENAI_COMPATIBLE.to_string(),
+                    account_email: None,
+                    provider_model,
+                    provider_base_url,
+                    claude_provider_configured,
+                    missing_git,
+                    cli_available: false,
+                });
+            }
             return Ok(ClaudeStatus {
                 installed: false,
                 authenticated: false,
@@ -2130,6 +2167,7 @@ pub async fn check_claude_status() -> Result<ClaudeStatus, String> {
                 provider_base_url: provider_base_url.clone(),
                 claude_provider_configured,
                 missing_git,
+                cli_available: false,
             });
         }
     };
@@ -2146,6 +2184,7 @@ pub async fn check_claude_status() -> Result<ClaudeStatus, String> {
             provider_base_url,
             claude_provider_configured,
             missing_git,
+            cli_available,
         });
     }
 
@@ -2157,9 +2196,7 @@ pub async fn check_claude_status() -> Result<ClaudeStatus, String> {
     let (authenticated, account_email) = match auth_output {
         Ok(output) if output.status.success() => {
             let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-            // Parse for email 鈥?claude auth status outputs account info
             let email = stdout.lines().find(|line| line.contains('@')).map(|line| {
-                // Extract email-like substring
                 line.split_whitespace()
                     .find(|word| word.contains('@'))
                     .unwrap_or(line.trim())
@@ -2184,6 +2221,7 @@ pub async fn check_claude_status() -> Result<ClaudeStatus, String> {
         provider_base_url: None,
         claude_provider_configured,
         missing_git,
+        cli_available,
     })
 }
 
@@ -2995,8 +3033,23 @@ async fn execute_openai_compatible_provider(
 ) -> Result<(), String> {
     ensure_secure_known_provider_base_url(&credential.base_url)?;
 
-    if uses_native_anthropic_route(&credential) {
-        return execute_openai_compatible_via_native_anthropic(
+    let cli_available = find_claude_binary().is_ok();
+
+    if cli_available {
+        if uses_native_anthropic_route(&credential) {
+            return execute_openai_compatible_via_native_anthropic(
+                window,
+                project_path,
+                prompt,
+                tab_id,
+                args_prefix,
+                effort_level,
+                credential,
+            )
+            .await;
+        }
+
+        return execute_openai_compatible_via_claude_proxy(
             window,
             project_path,
             prompt,
@@ -3008,14 +3061,28 @@ async fn execute_openai_compatible_provider(
         .await;
     }
 
-    execute_openai_compatible_via_claude_proxy(
-        window,
-        project_path,
-        prompt,
-        tab_id,
-        args_prefix,
-        effort_level,
-        credential,
+    // CLI not available — use built-in direct engine
+    let session_id = args_prefix
+        .iter()
+        .position(|a| a == "--resume")
+        .and_then(|i| args_prefix.get(i + 1))
+        .cloned();
+
+    let engine_state = window
+        .state::<crate::direct_engine::DirectEngineState>();
+
+    crate::direct_engine::execute(
+        window.clone(),
+        engine_state.inner().clone(),
+        crate::direct_engine::DirectEngineRequest {
+            api_key: credential.api_key,
+            base_url: credential.base_url,
+            model: credential.model,
+            project_path,
+            prompt,
+            tab_id,
+            session_id,
+        },
     )
     .await
 }
@@ -3026,31 +3093,45 @@ async fn execute_openai_compatible_via_native_anthropic(
     prompt: String,
     tab_id: String,
     args_prefix: Vec<String>,
-    effort_level: Option<String>,
+    _effort_level: Option<String>,
     credential: StoredOpenAiCompatibleCredential,
 ) -> Result<(), String> {
-    let anthropic_base_url = native_anthropic_base_url(&credential)
-        .ok_or_else(|| "Provider does not expose a native Anthropic endpoint".to_string())?;
-    let claude_path = find_claude_binary()?;
+    let openai_base_url = openai_base_url_from_native_anthropic(&credential);
 
-    let (mut args, stdin_payload) = with_prompt_transport(args_prefix, prompt);
-    args.extend(common_claude_args());
+    let session_id = args_prefix
+        .iter()
+        .position(|a| a == "--resume")
+        .and_then(|i| args_prefix.get(i + 1))
+        .cloned();
 
-    let mut cmd = create_command(&claude_path, args, &project_path, effort_level.as_deref());
-    apply_native_anthropic_provider_env(&mut cmd, &credential, &anthropic_base_url);
+    let engine_state = window
+        .state::<crate::direct_engine::DirectEngineState>();
 
-    spawn_claude_process(
-        window,
-        cmd,
-        tab_id,
-        stdin_payload,
-        Some(SpawnProviderMetadata {
-            provider: PROVIDER_OPENAI_COMPATIBLE,
-            provider_credential_id: credential.id,
+    crate::direct_engine::execute(
+        window.clone(),
+        engine_state.inner().clone(),
+        crate::direct_engine::DirectEngineRequest {
+            api_key: credential.api_key,
+            base_url: openai_base_url,
             model: credential.model,
-        }),
+            project_path,
+            prompt,
+            tab_id,
+            session_id,
+        },
     )
     .await
+}
+
+fn openai_base_url_from_native_anthropic(credential: &StoredOpenAiCompatibleCredential) -> String {
+    let lower = credential.base_url.to_ascii_lowercase();
+    if let Some(idx) = lower.find("/anthropic") {
+        credential.base_url[..idx].to_string()
+    } else if let Some(idx) = lower.find("/apps/anthropic") {
+        credential.base_url[..idx].to_string()
+    } else {
+        credential.base_url.clone()
+    }
 }
 
 fn apply_native_anthropic_provider_env(
@@ -3315,6 +3396,8 @@ pub async fn resume_claude_code(
 
 #[tauri::command]
 pub async fn cancel_claude_execution(window: WebviewWindow, tab_id: String) -> Result<(), String> {
+    let engine_state = window.state::<crate::direct_engine::DirectEngineState>();
+    engine_state.cancel(&tab_id).await;
     stop_claude_process(window, tab_id, ClaudeStopMode::Terminate)
         .await
         .map(|_| ())
@@ -3325,6 +3408,8 @@ pub async fn interrupt_claude_execution(
     window: WebviewWindow,
     tab_id: String,
 ) -> Result<bool, String> {
+    let engine_state = window.state::<crate::direct_engine::DirectEngineState>();
+    engine_state.cancel(&tab_id).await;
     stop_claude_process(window, tab_id, ClaudeStopMode::Interrupt).await
 }
 

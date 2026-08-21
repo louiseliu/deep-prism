@@ -224,7 +224,7 @@ function EffortControls({
     <>
       <div className="my-1 border-border border-t" />
       <div className="px-2 py-1 font-medium text-muted-foreground text-xs">
-        Effort
+        推理深度
       </div>
       <div className="flex gap-1 px-2 pb-2">
         {EFFORT_LEVELS.map((level) => (
@@ -928,7 +928,7 @@ export const ChatComposer: FC<{ isOpen?: boolean }> = ({ isOpen }) => {
             const fileName = safePastedFileName(file, index);
             const tempRoot = await join(
               await tempDir(),
-              "ClaudePrism",
+              "DeepPrism",
               "chat-pastes",
             );
             if (!(await exists(tempRoot))) {
@@ -1250,25 +1250,25 @@ export const ChatComposer: FC<{ isOpen?: boolean }> = ({ isOpen }) => {
     {
       id: "sonnet" as const,
       name: "Sonnet",
-      desc: "Fast, efficient for most tasks",
+      desc: "快速高效，适合大多数任务",
       icon: <ZapIcon className="size-3.5" />,
     },
     {
       id: "opus" as const,
       name: "Opus",
-      desc: "Most capable, complex reasoning",
+      desc: "最强能力，复杂推理",
       icon: <SparklesIcon className="size-3.5" />,
     },
     {
       id: "haiku" as const,
       name: "Haiku",
-      desc: "Fastest, simple tasks",
+      desc: "最快速度，简单任务",
       icon: <RabbitIcon className="size-3.5" />,
     },
     {
       id: "opusplan" as const,
       name: "OpusPlan",
-      desc: "Opus for planning, Sonnet for execution",
+      desc: "Opus 规划 + Sonnet 执行",
       icon: <LayersIcon className="size-3.5" />,
     },
   ];
@@ -1465,7 +1465,7 @@ export const ChatComposer: FC<{ isOpen?: boolean }> = ({ isOpen }) => {
                           type="button"
                           className="flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                           aria-label={`Delete ${displayName}`}
-                          title="Delete provider"
+                          title="删除提供商"
                           disabled={!!deletingProviderId}
                           onClick={(event) => {
                             event.preventDefault();
@@ -1494,9 +1494,9 @@ export const ChatComposer: FC<{ isOpen?: boolean }> = ({ isOpen }) => {
                   <PlusIcon className="size-3.5 shrink-0" />
                   <div className="min-w-0 flex-1">
                     <div className="truncate font-medium text-xs">
-                      Add Provider
+                      添加提供商
                     </div>
-                    <div className="truncate text-xs">Save another API key</div>
+                    <div className="truncate text-xs">保存其他 API 密钥</div>
                   </div>
                 </button>
               </div>
@@ -1507,7 +1507,7 @@ export const ChatComposer: FC<{ isOpen?: boolean }> = ({ isOpen }) => {
                   className="min-h-0 flex-1 overflow-y-auto"
                 >
                   <div className="px-2 py-1 font-medium text-muted-foreground text-xs">
-                    Model
+                    模型
                   </div>
                   {claudeProviderActive ? (
                     claudeModelOptions.map((m) => (
@@ -1537,7 +1537,7 @@ export const ChatComposer: FC<{ isOpen?: boolean }> = ({ isOpen }) => {
                     <>
                       {activeProviderModelsLoading && (
                         <div className="px-3 py-1.5 text-muted-foreground text-xs">
-                          Fetching models...
+                          获取模型列表中...
                         </div>
                       )}
                       {activeProviderModelOptions.map((modelId) => (
@@ -1586,7 +1586,7 @@ export const ChatComposer: FC<{ isOpen?: boolean }> = ({ isOpen }) => {
                     </>
                   ) : (
                     <div className="px-3 py-2 text-muted-foreground text-xs">
-                      Select a provider
+                      请先选择提供商
                     </div>
                   )}
                 </div>
@@ -1607,9 +1607,9 @@ export const ChatComposer: FC<{ isOpen?: boolean }> = ({ isOpen }) => {
       <Dialog open={providerSetupOpen} onOpenChange={setProviderSetupOpen}>
         <DialogContent className="max-h-[85vh] w-[min(42rem,calc(100vw-2rem))] overflow-y-auto overflow-x-hidden sm:max-w-none">
           <DialogHeader>
-            <DialogTitle>Add AI Provider</DialogTitle>
+            <DialogTitle>添加 AI 提供商</DialogTitle>
             <DialogDescription>
-              Configure Anthropic or another model provider for this project.
+              为此项目配置 DeepSeek、通义千问或其他模型提供商。
             </DialogDescription>
           </DialogHeader>
           <ClaudeSetup
@@ -1645,9 +1645,9 @@ export const ChatComposer: FC<{ isOpen?: boolean }> = ({ isOpen }) => {
       >
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>Delete Provider</DialogTitle>
+            <DialogTitle>删除提供商</DialogTitle>
             <DialogDescription>
-              Delete{" "}
+              确定删除{" "}
               <span className="font-medium text-foreground">
                 {providerDeleteTarget
                   ? getProviderDisplayName({
@@ -1655,13 +1655,13 @@ export const ChatComposer: FC<{ isOpen?: boolean }> = ({ isOpen }) => {
                       baseUrl: providerDeleteTarget.base_url,
                       model: providerDeleteTarget.model,
                     })
-                  : "this provider"}
+                  : "此提供商"}
               </span>{" "}
-              with model{" "}
+              的模型{" "}
               <span className="font-mono text-foreground">
-                {providerDeleteTarget?.model || "unknown"}
+                {providerDeleteTarget?.model || "未知"}
               </span>
-              ? The API key will be removed from ClaudePrism.
+              ？API 密钥将从 DeepPrism 中移除。
             </DialogDescription>
           </DialogHeader>
           {providerDeleteError && (
@@ -1679,7 +1679,7 @@ export const ChatComposer: FC<{ isOpen?: boolean }> = ({ isOpen }) => {
               }}
               disabled={!!deletingProviderId}
             >
-              Cancel
+              取消
             </Button>
             <Button
               variant="destructive"
@@ -1695,7 +1695,7 @@ export const ChatComposer: FC<{ isOpen?: boolean }> = ({ isOpen }) => {
               ) : (
                 <Trash2Icon className="size-3.5" />
               )}
-              Delete
+              删除
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1857,8 +1857,8 @@ export const ChatComposer: FC<{ isOpen?: boolean }> = ({ isOpen }) => {
             onPaste={handlePaste}
             placeholder={
               isStreaming
-                ? "Add guidance for the next turn..."
-                : "Ask me anything (/ for commands, @ to mention)"
+                ? "为下一轮对话添加指导..."
+                : "问我任何问题 (/ 使用命令, @ 引用文件)"
             }
             className="max-h-32 min-h-10 w-full resize-none bg-transparent px-2.5 py-1 text-base outline-none placeholder:text-muted-foreground/80"
             rows={1}
@@ -1869,7 +1869,7 @@ export const ChatComposer: FC<{ isOpen?: boolean }> = ({ isOpen }) => {
           {/* Attachments, model & settings selector */}
           <div className="flex items-center gap-1">
             <TooltipIconButton
-              tooltip="Attach files"
+              tooltip="附加文件"
               side="top"
               type="button"
               variant="ghost"
@@ -1884,7 +1884,7 @@ export const ChatComposer: FC<{ isOpen?: boolean }> = ({ isOpen }) => {
               ref={modelButtonRef}
               type="button"
               onClick={() => setModelPickerOpen((v) => !v)}
-              title="Switch provider or model"
+              title="切换模型提供商"
               className="flex h-7 items-center gap-1.5 rounded-full px-2 text-muted-foreground text-xs transition-colors hover:bg-muted hover:text-foreground"
             >
               {selectedProviderCredential ? (
@@ -1932,9 +1932,9 @@ export const ChatComposer: FC<{ isOpen?: boolean }> = ({ isOpen }) => {
               ) : (
                 <>
                   <SparklesIcon className="size-3" />
-                  <span>Provider</span>
+                  <span>提供商</span>
                   <span className="text-muted-foreground/60">
-                    {setupStatus === "checking" ? "Loading" : "Select"}
+                    {setupStatus === "checking" ? "加载中" : "选择"}
                   </span>
                   <ChevronDownIcon className="size-3" />
                 </>
@@ -1946,10 +1946,10 @@ export const ChatComposer: FC<{ isOpen?: boolean }> = ({ isOpen }) => {
             <TooltipIconButton
               tooltip={
                 isStreaming && !hasInput
-                  ? "Stop"
+                  ? "停止"
                   : isStreaming
-                    ? "Queue guidance"
-                    : "Send"
+                    ? "排队指令"
+                    : "发送"
               }
               side="top"
               variant="default"
