@@ -138,13 +138,14 @@ jobs:
   # ──────────────────────────────────────────────
   build-macos:
     runs-on: macos-14
+    env:
+      APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+      APPLE_ID: ${{ secrets.APPLE_ID }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # Build tools required by vcpkg ports (autotools for gperf, fontconfig, etc.)
-      # These are compile-time only — they do NOT create runtime dylib dependencies.
       - name: Install build tools
         run: brew install autoconf autoconf-archive automake libtool pkg-config
 
@@ -189,9 +190,8 @@ jobs:
           echo "CFLAGS=" >> $GITHUB_ENV
 
       - name: Import Apple certificate
-        if: ${{ secrets.APPLE_CERTIFICATE != '' }}
+        if: env.APPLE_CERTIFICATE != ''
         env:
-          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
         run: |
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
@@ -254,9 +254,8 @@ jobs:
           pnpm --filter @deep-prism/desktop tauri build --target aarch64-apple-darwin
 
       - name: Notarize DMG
-        if: ${{ secrets.APPLE_ID != '' }}
+        if: env.APPLE_ID != ''
         env:
-          APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
         run: |
@@ -312,6 +311,9 @@ jobs:
   # ──────────────────────────────────────────────
   build-macos-intel:
     runs-on: macos-15-intel
+    env:
+      APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+      APPLE_ID: ${{ secrets.APPLE_ID }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -358,9 +360,8 @@ jobs:
           echo "CFLAGS=" >> $GITHUB_ENV
 
       - name: Import Apple certificate
-        if: ${{ secrets.APPLE_CERTIFICATE != '' }}
+        if: env.APPLE_CERTIFICATE != ''
         env:
-          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
         run: |
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
@@ -423,9 +424,8 @@ jobs:
           pnpm --filter @deep-prism/desktop tauri build --target x86_64-apple-darwin
 
       - name: Notarize DMG
-        if: ${{ secrets.APPLE_ID != '' }}
+        if: env.APPLE_ID != ''
         env:
-          APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
         run: |
