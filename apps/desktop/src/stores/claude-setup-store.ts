@@ -22,6 +22,7 @@ interface ClaudeStatus {
   provider_base_url: string | null;
   claude_provider_configured: boolean;
   missing_git: boolean;
+  cli_available: boolean;
 }
 
 export interface OpenAiCompatibleCredentialInfo {
@@ -60,6 +61,7 @@ interface ClaudeSetupState {
   providerModel: string | null;
   providerBaseUrl: string | null;
   claudeProviderConfigured: boolean;
+  cliAvailable: boolean;
   openAiCredentials: OpenAiCompatibleCredentialInfo[];
   activeOpenAiCredentialId: string | null;
 
@@ -208,6 +210,7 @@ export const useClaudeSetupStore = create<ClaudeSetupState>((set, get) => ({
   providerModel: null,
   providerBaseUrl: null,
   claudeProviderConfigured: false,
+  cliAvailable: false,
   openAiCredentials: [],
   activeOpenAiCredentialId: null,
 
@@ -238,7 +241,8 @@ export const useClaudeSetupStore = create<ClaudeSetupState>((set, get) => ({
         openAiCredentials[0]?.id ??
         null;
 
-      // On Windows, Git for Windows is required before anything else
+      const cliAvailable = result.cli_available ?? false;
+
       if (result.missing_git) {
         set({
           status: "missing-git",
@@ -248,6 +252,25 @@ export const useClaudeSetupStore = create<ClaudeSetupState>((set, get) => ({
           providerModel: null,
           providerBaseUrl: null,
           claudeProviderConfigured: result.claude_provider_configured,
+          cliAvailable,
+          openAiCredentials,
+          activeOpenAiCredentialId,
+        });
+        return;
+      }
+
+      // CLI not installed but OpenAI credentials configured — still ready
+      // (direct-engine handles API calls without the CLI)
+      if (!result.installed && result.authenticated) {
+        set({
+          status: "ready",
+          version: null,
+          providerKind: result.provider_kind ?? "openai-compatible",
+          accountEmail: null,
+          providerModel: result.provider_model,
+          providerBaseUrl: result.provider_base_url,
+          claudeProviderConfigured: result.claude_provider_configured,
+          cliAvailable,
           openAiCredentials,
           activeOpenAiCredentialId,
         });
@@ -263,6 +286,7 @@ export const useClaudeSetupStore = create<ClaudeSetupState>((set, get) => ({
           providerModel: null,
           providerBaseUrl: null,
           claudeProviderConfigured: result.claude_provider_configured,
+          cliAvailable,
           openAiCredentials,
           activeOpenAiCredentialId,
         });
@@ -278,6 +302,7 @@ export const useClaudeSetupStore = create<ClaudeSetupState>((set, get) => ({
           providerModel: null,
           providerBaseUrl: null,
           claudeProviderConfigured: result.claude_provider_configured,
+          cliAvailable,
           openAiCredentials,
           activeOpenAiCredentialId,
         });
@@ -292,6 +317,7 @@ export const useClaudeSetupStore = create<ClaudeSetupState>((set, get) => ({
         providerModel: result.provider_model,
         providerBaseUrl: result.provider_base_url,
         claudeProviderConfigured: result.claude_provider_configured,
+        cliAvailable,
         openAiCredentials,
         activeOpenAiCredentialId,
       });
@@ -363,9 +389,18 @@ export const useClaudeSetupStore = create<ClaudeSetupState>((set, get) => ({
     credentialLabel?: string,
   ) => {
     const status = get().status;
-    if (status === "missing-git" || status === "not-installed") {
+    if (status === "missing-git") {
       set({
-        error: "Install Claude Code before configuring an AI provider.",
+        error: "Install Git for Windows before configuring an AI provider.",
+      });
+      return false;
+    }
+    if (
+      status === "not-installed" &&
+      provider !== "openai-compatible"
+    ) {
+      set({
+        error: "Install Claude Code before configuring a Claude provider. Use an OpenAI-compatible provider for CLI-free mode.",
       });
       return false;
     }

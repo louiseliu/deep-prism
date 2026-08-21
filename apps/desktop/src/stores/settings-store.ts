@@ -19,7 +19,7 @@ export const useSettingsStore = create<SettingsState>()(
       setVimMode: (enabled) => set({ vimMode: enabled }),
     }),
     {
-      name: "claude-prism-settings",
+      name: "deep-prism-settings",
     },
   ),
 );

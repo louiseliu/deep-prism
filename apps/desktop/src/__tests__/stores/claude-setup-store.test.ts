@@ -122,8 +122,53 @@ describe("useClaudeSetupStore.saveApiKey", () => {
     });
   });
 
-  it("requires Claude Code before saving provider credentials", async () => {
+  it("requires Claude Code before saving claude-code provider credentials", async () => {
     useClaudeSetupStore.setState({ status: "not-installed" });
+
+    const success = await useClaudeSetupStore
+      .getState()
+      .saveApiKey(
+        "sk-ant-test",
+        "",
+        "claude-code",
+      );
+
+    expect(success).toBe(false);
+    expect(invoke).not.toHaveBeenCalled();
+    expect(useClaudeSetupStore.getState().error).toContain(
+      "Install Claude Code",
+    );
+  });
+
+  it("allows saving OpenAI-compatible credentials when CLI is not installed", async () => {
+    useClaudeSetupStore.setState({ status: "not-installed" });
+    vi.mocked(invoke).mockImplementation(async (command) => {
+      if (command === "check_claude_status") {
+        return {
+          installed: false,
+          authenticated: true,
+          binary_path: null,
+          version: null,
+          provider_kind: "openai-compatible",
+          account_email: null,
+          provider_model: "deepseek-v4-pro",
+          provider_base_url: "https://api.deepseek.com/anthropic",
+          missing_git: false,
+          cli_available: false,
+        };
+      }
+      if (command === "list_openai_compatible_credentials") {
+        return [
+          {
+            id: "cred-1",
+            label: "DeepSeek",
+            model: "deepseek-v4-pro",
+            base_url: "https://api.deepseek.com/anthropic",
+          },
+        ];
+      }
+      return null;
+    });
 
     const success = await useClaudeSetupStore
       .getState()
@@ -134,11 +179,12 @@ describe("useClaudeSetupStore.saveApiKey", () => {
         "deepseek-v4-pro",
       );
 
-    expect(success).toBe(false);
-    expect(invoke).not.toHaveBeenCalled();
-    expect(useClaudeSetupStore.getState().error).toBe(
-      "Install Claude Code before configuring an AI provider.",
-    );
+    expect(success).toBe(true);
+    expect(invoke).toHaveBeenCalledWith("verify_openai_compatible_api_key", {
+      apiKey: "sk-test",
+      baseUrl: "https://api.deepseek.com/anthropic",
+      model: "deepseek-v4-pro",
+    });
   });
 
   it("verifies OpenAI-compatible credentials before saving them", async () => {

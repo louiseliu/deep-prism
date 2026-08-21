@@ -138,7 +138,7 @@ export function TemplatePreview() {
       setProjectFolder(lastProjectFolder);
     } else {
       homeDir()
-        .then((home) => join(home, "Documents", "ClaudePrism"))
+        .then((home) => join(home, "Documents", "DeepPrism"))
         .then(async (dir) => {
           await mkdir(dir, { recursive: true }).catch(() => {});
           setProjectFolder(dir);
@@ -330,7 +330,7 @@ export function TemplatePreview() {
   const handleAddAttachments = useCallback(async () => {
     const selected = await open({
       multiple: true,
-      title: "Add Reference Files",
+      title: "添加参考文件",
     });
     if (selected) {
       const paths = Array.isArray(selected) ? selected : [selected];
@@ -349,7 +349,7 @@ export function TemplatePreview() {
     const selected = await open({
       directory: true,
       multiple: false,
-      title: "Choose Location for New Project",
+      title: "选择新项目位置",
     });
     if (selected) {
       setProjectFolder(selected);
@@ -370,7 +370,7 @@ export function TemplatePreview() {
     try {
       const projectPath = await join(projectFolder, name);
       if (await exists(projectPath)) {
-        setProjectNameError("A folder with this name already exists here");
+        setProjectNameError("此位置已存在同名文件夹");
         return;
       }
       await mkdir(projectPath, { recursive: true });
@@ -426,7 +426,7 @@ export function TemplatePreview() {
       closePreview();
     } catch (err) {
       console.error("Failed to create project:", err);
-      toast.error("Failed to create project", {
+      toast.error("创建项目失败", {
         description: err instanceof Error ? err.message : String(err),
       });
     } finally {
@@ -464,7 +464,7 @@ export function TemplatePreview() {
                   <DialogDescription className="mt-0.5 truncate text-xs">
                     {template.description} — {template.documentClass}
                     {template.packages.length > 0 &&
-                      ` — ${template.packages.length} packages`}
+                      ` — ${template.packages.length} 个宏包`}
                   </DialogDescription>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
@@ -474,7 +474,7 @@ export function TemplatePreview() {
                     className="gap-1.5"
                   >
                     <SparklesIcon className="size-3.5" />
-                    Use Template
+                    使用模板
                   </Button>
                 </div>
               </div>
@@ -489,14 +489,14 @@ export function TemplatePreview() {
                   {loading && (
                     <div className="flex flex-col items-center gap-2 text-muted-foreground">
                       <LoaderIcon className="size-5 animate-spin" />
-                      <span className="text-sm">Loading preview...</span>
+                      <span className="text-sm">加载预览中...</span>
                     </div>
                   )}
                   {error && (
                     <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                      <span className="text-sm">Preview not available</span>
+                      <span className="text-sm">预览不可用</span>
                       <span className="text-xs opacity-60">
-                        Run `pnpm generate-previews` to generate
+                        运行 `pnpm generate-previews` 生成预览
                       </span>
                     </div>
                   )}
@@ -517,7 +517,7 @@ export function TemplatePreview() {
                       <ChevronLeftIcon className="size-4" />
                     </Button>
                     <span className="min-w-16 text-center text-muted-foreground text-xs tabular-nums">
-                      {numPages > 1 ? `${currentPage} / ${numPages}` : "1 page"}
+                      {numPages > 1 ? `${currentPage} / ${numPages}` : "1 页"}
                     </span>
                     <Button
                       variant="ghost"
@@ -561,14 +561,14 @@ export function TemplatePreview() {
               <div className="space-y-4 p-5">
                 <div className="space-y-2">
                   <div>
-                    <span className="font-semibold text-sm">Project name</span>
+                    <span className="font-semibold text-sm">项目名称</span>
                     <p className="mt-0.5 text-muted-foreground text-xs leading-relaxed">
-                      This becomes the folder name on disk.
+                      将作为磁盘上的文件夹名称。
                     </p>
                   </div>
                   <Input
                     ref={projectNameRef}
-                    placeholder="e.g., conference-paper"
+                    placeholder="例如：会议论文"
                     value={projectName}
                     onChange={(e) => {
                       setProjectName(e.target.value);
@@ -591,16 +591,15 @@ export function TemplatePreview() {
                 <div className="space-y-2">
                   <div>
                     <span className="font-semibold text-sm">
-                      What are you writing?
+                      你要写什么？
                     </span>
                     <p className="mt-0.5 text-muted-foreground text-xs leading-relaxed">
-                      Describe your document and Claude will generate tailored
-                      content.
+                      描述你的文档，AI 将生成定制化内容。
                     </p>
                   </div>
                   <Textarea
                     ref={textareaRef}
-                    placeholder="e.g., A research paper on transformer architectures for protein structure prediction, targeting NeurIPS 2025..."
+                    placeholder="例如：一篇关于蛋白质结构预测的 Transformer 架构研究论文，目标投稿 NeurIPS 2025..."
                     value={purpose}
                     onChange={(e) => setPurpose(e.target.value)}
                     rows={3}
@@ -621,7 +620,7 @@ export function TemplatePreview() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <span className="font-medium text-sm">
-                          Reference files
+                          参考文件
                         </span>
                         {attachments.length > 0 && (
                           <span className="ml-2 inline-flex items-center justify-center rounded-full bg-primary/15 px-1.5 py-0.5 font-semibold text-[10px] text-primary leading-none">
@@ -667,7 +666,7 @@ export function TemplatePreview() {
                             <>
                               <UploadIcon className="size-4 text-primary" />
                               <span className="font-medium text-primary text-xs">
-                                Drop to add
+                                拖放以添加
                               </span>
                             </>
                           ) : (
@@ -675,13 +674,13 @@ export function TemplatePreview() {
                               <UploadIcon className="size-4 text-muted-foreground/40" />
                               <div className="text-center">
                                 <span className="text-muted-foreground/70 text-xs">
-                                  Drag & drop or{" "}
+                                  拖放文件或{" "}
                                 </span>
                                 <button
                                   onClick={handleAddAttachments}
                                   className="font-medium text-foreground/70 text-xs underline decoration-border underline-offset-2 transition-colors hover:text-foreground"
                                 >
-                                  browse files
+                                  浏览文件
                                 </button>
                               </div>
                             </>
@@ -702,7 +701,7 @@ export function TemplatePreview() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <span className="font-medium text-sm">
-                          Project location
+                          项目位置
                         </span>
                       </div>
                       {!locationOpen && projectFolder && projectName.trim() && (
@@ -721,7 +720,7 @@ export function TemplatePreview() {
                           <p className="min-w-0 flex-1 truncate rounded-md bg-muted/30 px-2.5 py-1.5 font-mono text-[11px] text-muted-foreground/60">
                             {projectFolder
                               ? `${projectFolder}/${normalizeProjectName(projectName) || "..."}`
-                              : "Choose a location"}
+                              : "选择位置"}
                           </p>
                           <Button
                             variant="outline"
@@ -730,7 +729,7 @@ export function TemplatePreview() {
                             onClick={handleChooseFolder}
                           >
                             <FolderOpenIcon className="size-3.5" />
-                            {projectFolder ? "Change" : "Choose"}
+                            {projectFolder ? "更改" : "选择"}
                           </Button>
                         </div>
                       </div>
@@ -751,15 +750,15 @@ export function TemplatePreview() {
                 {isCreating ? (
                   <>
                     <Loader2Icon className="size-4 animate-spin" />
-                    Creating project...
+                    创建项目中...
                   </>
                 ) : purpose.trim() ? (
                   <>
                     <SparklesIcon className="size-4" />
-                    Create & Generate with AI
+                    创建并 AI 生成内容
                   </>
                 ) : (
-                  "Create Project"
+                  "创建项目"
                 )}
               </Button>
             </div>

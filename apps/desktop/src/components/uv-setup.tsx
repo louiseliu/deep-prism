@@ -168,7 +168,7 @@ export function UvSetupDialog({ open, onClose }: UvSetupDialogProps) {
           {/* Info text */}
           {status === "ready" && venvReady && (
             <p className="max-w-full break-words text-muted-foreground text-xs leading-relaxed">
-              Claude Code and ClaudePrism terminal tools use this environment
+              AI 助手和 DeepPrism 终端工具使用该环境
               when running Python code. OpenAI-compatible providers use it
               through PowerShell/Bash tool calls. Use{" "}
               <code className="text-foreground">uv pip install</code> to add

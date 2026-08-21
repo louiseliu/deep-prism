@@ -8,6 +8,11 @@ import {
   startOAuth,
   completeOAuth,
   cancelOAuth,
+  connectLocalZotero,
+  fetchLocalCollections,
+  fetchLocalLibraryItemCount,
+  importLocalCollection,
+  syncLocalCollection,
   type ZoteroCollection,
 } from "@/lib/zotero-api";
 import { useDocumentStore } from "@/stores/document-store";
@@ -46,10 +51,12 @@ interface ZoteroState {
   syncProgress: { loaded: number; total: number } | null;
   error: string | null;
   collections: ZoteroCollection[];
+  libraryItemCount: number;
   isLoadingCollections: boolean;
 
   connectWithOAuth: () => Promise<boolean>;
   connectWithApiKey: (apiKey: string) => Promise<boolean>;
+  connectLocalClient: () => Promise<boolean>;
   cancelConnect: () => void;
   disconnect: () => void;
   revalidate: () => Promise<void>;
@@ -68,10 +75,11 @@ function storeKey(collectionKey: string | null): string {
 }
 
 function sanitizeFileName(name: string): string {
-  return name
-    .replace(/[^a-zA-Z0-9_\-\s]/g, "")
+  const sanitized = name
+    .replace(/[/\\:*?"<>|]/g, "")
     .replace(/\s+/g, "-")
-    .toLowerCase();
+    .trim();
+  return sanitized || "references";
 }
 
 /** Parse a .bib file into a map of citekey → full entry string */
@@ -103,6 +111,7 @@ export const useZoteroStore = create<ZoteroState>()(
       syncProgress: null,
       error: null,
       collections: [],
+      libraryItemCount: 0,
       isLoadingCollections: false,
 
       connectWithOAuth: async () => {
@@ -153,6 +162,30 @@ export const useZoteroStore = create<ZoteroState>()(
         }
       },
 
+      connectLocalClient: async () => {
+        set({ isValidating: true, error: null });
+        try {
+          const creds = await connectLocalZotero();
+          set({
+            apiKey: creds.apiKey,
+            userID: creds.userID,
+            username: creds.username,
+            isAuthenticated: true,
+            isValidating: false,
+          });
+          get().loadCollections();
+          return true;
+        } catch (err) {
+          const message = err instanceof Error ? err.message : "连接失败";
+          log.error("Local Zotero connection failed", { error: message });
+          set({
+            error: message,
+            isValidating: false,
+          });
+          return false;
+        }
+      },
+
       cancelConnect: () => {
         cancelOAuth().catch(() => {});
         set({ isValidating: false, error: null });
@@ -173,6 +206,16 @@ export const useZoteroStore = create<ZoteroState>()(
       revalidate: async () => {
         const { apiKey } = get();
         if (!apiKey) return;
+        if (apiKey === "__local__") {
+          try {
+            await fetchLocalCollections();
+            set({ isAuthenticated: true });
+            get().loadCollections();
+          } catch {
+            set({ isAuthenticated: false });
+          }
+          return;
+        }
         try {
           const creds = await validateApiKey(apiKey);
           log.debug(`Revalidated as ${creds.username}`);
@@ -193,9 +236,18 @@ export const useZoteroStore = create<ZoteroState>()(
         if (!apiKey || !userID) return;
         set({ isLoadingCollections: true });
         try {
-          const collections = await fetchCollections(apiKey, userID);
-          log.debug(`Loaded ${collections.length} collections`);
-          set({ collections, isLoadingCollections: false });
+          let collections: ZoteroCollection[];
+          let libraryItemCount = 0;
+          if (apiKey === "__local__") {
+            [collections, libraryItemCount] = await Promise.all([
+              fetchLocalCollections(),
+              fetchLocalLibraryItemCount(),
+            ]);
+          } else {
+            collections = await fetchCollections(apiKey, userID);
+          }
+          log.debug(`Loaded ${collections.length} collections, library has ${libraryItemCount} items`);
+          set({ collections, libraryItemCount, isLoadingCollections: false });
         } catch (err) {
           log.error("Failed to load collections", { error: String(err) });
           set({ isLoadingCollections: false });
@@ -214,14 +266,13 @@ export const useZoteroStore = create<ZoteroState>()(
         set({ isSyncing: sk, syncProgress: null, error: null });
 
         try {
-          const result = await importCollection(
-            apiKey,
-            userID,
-            collectionKey,
-            (loaded, total) => {
-              set({ syncProgress: { loaded, total } });
-            },
-          );
+          const result = apiKey === "__local__"
+            ? await importLocalCollection(collectionKey, (loaded, total) => {
+                set({ syncProgress: { loaded, total } });
+              })
+            : await importCollection(apiKey, userID, collectionKey, (loaded, total) => {
+                set({ syncProgress: { loaded, total } });
+              });
 
           // Determine .bib file name
           const bibFileName = `${sanitizeFileName(name)}.bib`;
@@ -267,8 +318,10 @@ export const useZoteroStore = create<ZoteroState>()(
             };
           });
         } catch (err) {
+          const message = err instanceof Error ? err.message : String(err);
+          log.error("Import failed", { error: message });
           set({
-            error: err instanceof Error ? err.message : "Import failed",
+            error: `导入失败: ${message}`,
             isSyncing: null,
             syncProgress: null,
           });
@@ -296,15 +349,13 @@ export const useZoteroStore = create<ZoteroState>()(
         set({ isSyncing: sk, syncProgress: null, error: null });
 
         try {
-          const result = await syncCollection(
-            apiKey,
-            userID,
-            collectionKey,
-            syncInfo.libraryVersion,
-            (loaded, total) => {
-              set({ syncProgress: { loaded, total } });
-            },
-          );
+          const result = apiKey === "__local__"
+            ? await syncLocalCollection(collectionKey, syncInfo.libraryVersion, (loaded, total) => {
+                set({ syncProgress: { loaded, total } });
+              })
+            : await syncCollection(apiKey, userID, collectionKey, syncInfo.libraryVersion, (loaded, total) => {
+                set({ syncProgress: { loaded, total } });
+              });
 
           if (collectionKey) {
             // For specific collections, syncCollection returns a full re-import
@@ -410,7 +461,7 @@ export const useZoteroStore = create<ZoteroState>()(
       },
     }),
     {
-      name: "claude-prism-zotero",
+      name: "deep-prism-zotero",
       partialize: (state) => ({
         apiKey: state.apiKey,
         userID: state.userID,

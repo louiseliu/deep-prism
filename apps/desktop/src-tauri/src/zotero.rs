@@ -315,6 +315,69 @@ async fn access_token(
     })
 }
 
+// ─── Zotero Local Proxy ───
+
+#[derive(serde::Deserialize)]
+pub struct LocalFetchRequest {
+    path: String,
+}
+
+#[derive(Serialize)]
+pub struct LocalFetchResponse {
+    status: u16,
+    body: String,
+    headers: HashMap<String, String>,
+}
+
+#[tauri::command]
+pub async fn zotero_local_fetch(request: LocalFetchRequest) -> Result<LocalFetchResponse, String> {
+    let url = format!("http://localhost:23119{}", request.path);
+    eprintln!("[zotero-proxy] GET {}", url);
+    let client = reqwest::Client::new();
+    let response = client
+        .get(&url)
+        .header("Zotero-Allowed-Request", "true")
+        .header("Zotero-API-Version", "3")
+        .timeout(std::time::Duration::from_secs(60))
+        .send()
+        .await
+        .map_err(|e| format!("Zotero local request failed: {}", e))?;
+
+    let status = response.status().as_u16();
+    eprintln!("[zotero-proxy] -> {} ({})", status, url);
+    let mut headers = HashMap::new();
+    for (key, value) in response.headers().iter() {
+        if let Ok(v) = value.to_str() {
+            headers.insert(key.as_str().to_string(), v.to_string());
+        }
+    }
+    let body = response
+        .text()
+        .await
+        .map_err(|e| format!("Failed to read response: {}", e))?;
+
+    Ok(LocalFetchResponse {
+        status,
+        body,
+        headers,
+    })
+}
+
+#[tauri::command]
+pub async fn zotero_local_ping() -> Result<bool, String> {
+    let client = reqwest::Client::new();
+    let result = client
+        .get("http://localhost:23119/connector/ping")
+        .timeout(std::time::Duration::from_secs(3))
+        .send()
+        .await;
+
+    match result {
+        Ok(response) => Ok(response.status().is_success()),
+        Err(_) => Ok(false),
+    }
+}
+
 // ─── Tauri Commands ───
 
 #[tauri::command]

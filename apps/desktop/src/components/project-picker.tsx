@@ -177,7 +177,7 @@ export function ProjectPicker() {
       const selected = await open({
         directory: true,
         multiple: false,
-        title: "Open Project Folder",
+        title: "打开项目文件夹",
       });
       if (typeof selected === "string" && selected) {
         await openProject(selected);
@@ -185,7 +185,7 @@ export function ProjectPicker() {
       }
     } catch (err) {
       console.warn("Failed to open selected project folder:", err);
-      toast.error("Failed to open project folder", {
+      toast.error("打开项目文件夹失败", {
         description: err instanceof Error ? err.message : String(err),
       });
     }
@@ -238,9 +238,9 @@ export function ProjectPicker() {
         >
           {!isSidebarCollapsed && (
             <div className="flex min-w-0 items-center gap-2">
-              <img src="/icon-192.png" alt="ClaudePrism" className="size-6" />
+              <img src="/icon-192.png" alt="DeepPrism" className="size-6" />
               <span className="truncate font-semibold text-sm">
-                ClaudePrism
+                DeepPrism
               </span>
             </div>
           )}
@@ -277,7 +277,7 @@ export function ProjectPicker() {
             icon={FolderOpenIcon}
             onClick={() => setActiveSection("projects")}
           >
-            All Projects
+            所有项目
           </ProjectNavButton>
           <ProjectNavButton
             active={activeSection === "settings"}
@@ -285,7 +285,7 @@ export function ProjectPicker() {
             icon={SettingsIcon}
             onClick={() => setActiveSection("settings")}
           >
-            Settings
+            设置
           </ProjectNavButton>
         </nav>
 
@@ -296,10 +296,10 @@ export function ProjectPicker() {
           )}
         >
           {isSidebarCollapsed ? (
-            <img src="/icon-192.png" alt="ClaudePrism" className="size-4" />
+            <img src="/icon-192.png" alt="DeepPrism" className="size-4" />
           ) : (
             <>
-              <span className="truncate">ClaudePrism v{appVersion}</span>
+              <span className="truncate">DeepPrism v{appVersion}</span>
               <div className="flex shrink-0 items-center gap-1">
                 <Button variant="ghost" size="icon" className="size-6" asChild>
                   <a
@@ -322,10 +322,10 @@ export function ProjectPicker() {
                   }}
                   title={
                     theme === "system"
-                      ? "System theme"
+                      ? "跟随系统"
                       : theme === "light"
-                        ? "Light mode"
-                        : "Dark mode"
+                        ? "浅色模式"
+                        : "深色模式"
                   }
                 >
                   {theme === "system" ? (
@@ -346,7 +346,7 @@ export function ProjectPicker() {
         <header className="flex h-[calc(48px+var(--titlebar-height))] shrink-0 flex-nowrap items-center gap-3 border-border/70 border-b bg-background px-5">
           <div className="mr-auto flex min-w-0 items-center">
             <h1 className="truncate font-semibold text-lg leading-none">
-              {activeSection === "settings" ? "Settings" : "All Projects"}
+              {activeSection === "settings" ? "设置" : "所有项目"}
             </h1>
           </div>
 
@@ -358,7 +358,7 @@ export function ProjectPicker() {
                   ref={searchInputRef}
                   value={searchQuery}
                   onChange={(event) => setSearchQuery(event.target.value)}
-                  placeholder="Search"
+                  placeholder="搜索项目"
                   className="h-9 w-full rounded-lg border border-input bg-background pr-16 pl-9 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-ring"
                 />
                 <kbd className="pointer-events-none absolute top-1/2 right-2 flex h-6 min-w-10 -translate-y-1/2 items-center justify-center rounded-md border border-border/70 bg-muted/30 px-1.5 font-medium text-[11px] text-muted-foreground leading-none">
@@ -372,14 +372,14 @@ export function ProjectPicker() {
                 className="h-9 shrink-0 gap-1.5 rounded-lg px-3.5"
               >
                 <FolderOpenIcon className="size-4" />
-                Import
+                导入
               </Button>
               <Button
                 onClick={() => setShowModeDialog(true)}
                 className="h-9 shrink-0 gap-1.5 rounded-lg px-4"
               >
                 <PlusIcon className="size-4" />
-                New
+                新建
               </Button>
             </div>
           )}
@@ -392,15 +392,15 @@ export function ProjectPicker() {
                 <SettingsDetailButton
                   active={settingsDetailSection === "provider"}
                   icon={KeyRoundIcon}
-                  label="Provider"
-                  meta={isClaudeReady ? "Ready" : "Setup"}
+                  label="模型提供商"
+                  meta={isClaudeReady ? "已就绪" : "待设置"}
                   onClick={() => setSettingsDetailSection("provider")}
                 />
                 <SettingsDetailButton
                   active={settingsDetailSection === "environment"}
                   icon={CheckCircle2Icon}
-                  label="Environment"
-                  meta="Python / Skills"
+                  label="运行环境"
+                  meta="Python / 技能"
                   onClick={() => setSettingsDetailSection("environment")}
                 />
               </aside>
@@ -408,7 +408,7 @@ export function ProjectPicker() {
               <div className="min-w-0">
                 {settingsDetailSection === "provider" ? (
                   <SettingsPanel
-                    title="Provider"
+                    title="模型提供商"
                     icon={KeyRoundIcon}
                     contentClassName="p-0"
                   >
@@ -416,7 +416,7 @@ export function ProjectPicker() {
                   </SettingsPanel>
                 ) : (
                   <SettingsPanel
-                    title="Environment"
+                    title="运行环境"
                     icon={CheckCircle2Icon}
                     contentClassName="p-0"
                   >
@@ -431,16 +431,16 @@ export function ProjectPicker() {
                 <div className="flex min-h-80 flex-col items-center justify-center rounded-lg border border-border border-dashed bg-muted/10 px-6 text-center">
                   <FileTextIcon className="mb-4 size-10 text-muted-foreground/70" />
                   <h2 className="font-semibold text-lg">
-                    {normalizedSearch ? "No matching projects" : "No projects"}
+                    {normalizedSearch ? "未找到匹配的项目" : "暂无项目"}
                   </h2>
                   <div className="mt-5 flex flex-wrap justify-center gap-3">
                     <Button onClick={() => setShowModeDialog(true)}>
                       <PlusIcon className="mr-2 size-4" />
-                      New
+                      新建
                     </Button>
                     <Button onClick={handleOpenFolder} variant="outline">
                       <FolderOpenIcon className="mr-2 size-4" />
-                      Import
+                      导入
                     </Button>
                   </div>
                 </div>
@@ -465,8 +465,8 @@ export function ProjectPicker() {
       <Dialog open={showModeDialog} onOpenChange={setShowModeDialog}>
         <DialogContent showCloseButton={false} className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Create New Project</DialogTitle>
-            <DialogDescription>How would you like to start?</DialogDescription>
+            <DialogTitle>新建项目</DialogTitle>
+            <DialogDescription>选择创建方式</DialogDescription>
           </DialogHeader>
           <div className="flex gap-3 pt-2">
             <button
@@ -477,13 +477,13 @@ export function ProjectPicker() {
                 <SparklesIcon className="size-5 text-muted-foreground transition-colors group-hover:text-foreground" />
               </div>
               <div>
-                <div className="font-semibold text-sm">Guided Setup</div>
+                <div className="font-semibold text-sm">模板引导</div>
                 <p className="mt-1 text-muted-foreground text-xs leading-relaxed">
-                  Pick a template and let AI help you get started
+                  选择模板，让 AI 帮你快速开始
                 </p>
               </div>
               <span className="rounded-md bg-muted px-2 py-0.5 font-medium text-[10px] text-muted-foreground">
-                Recommended
+                推荐
               </span>
             </button>
 
@@ -495,9 +495,9 @@ export function ProjectPicker() {
                 <FileTextIcon className="size-5 text-muted-foreground transition-colors group-hover:text-foreground" />
               </div>
               <div>
-                <div className="font-semibold text-sm">Blank Document</div>
+                <div className="font-semibold text-sm">空白文档</div>
                 <p className="mt-1 text-muted-foreground text-xs leading-relaxed">
-                  Start with an empty LaTeX file
+                  从空白 LaTeX 文件开始
                 </p>
               </div>
             </button>
@@ -513,10 +513,9 @@ export function ProjectPicker() {
       >
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>Remove Project</DialogTitle>
+            <DialogTitle>移除项目</DialogTitle>
             <DialogDescription>
-              Remove "{removeProjectTarget?.name ?? "this project"}" from All
-              Projects? The project files will stay on disk.
+              从项目列表中移除「{removeProjectTarget?.name ?? "此项目"}」？项目文件不会被删除。
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -524,7 +523,7 @@ export function ProjectPicker() {
               variant="outline"
               onClick={() => setRemoveProjectTarget(null)}
             >
-              Cancel
+              取消
             </Button>
             <Button
               variant="destructive"
@@ -535,7 +534,7 @@ export function ProjectPicker() {
               }}
               disabled={!removeProjectTarget}
             >
-              Remove
+              移除
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -660,7 +659,7 @@ async function getProjectCreatedAt(
 
 function formatProjectCreatedDate(createdAt: number | null) {
   if (!createdAt) return "";
-  return new Intl.DateTimeFormat("en-US", {
+  return new Intl.DateTimeFormat("zh-CN", {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -871,7 +870,7 @@ function ProjectPreviewSurface({
   return (
     <div className="flex h-full w-full flex-col items-center justify-center bg-muted/10 text-muted-foreground">
       <FileTextIcon className="mb-2 size-5" />
-      <span className="text-xs">No preview</span>
+      <span className="text-xs">暂无预览</span>
     </div>
   );
 }
@@ -1040,38 +1039,38 @@ function EnvironmentStatus({ appVersion }: { appVersion: string }) {
           label="Python (uv)"
           detail={
             uvInstalling
-              ? "Installing..."
+              ? "安装中..."
               : uvStatus === "ready"
-                ? (uvVersion ?? "Installed")
+                ? (uvVersion ?? "已安装")
                 : uvStatus === "checking"
-                  ? "Checking..."
-                  : "Not installed"
+                  ? "检测中..."
+                  : "未安装"
           }
           action={
             uvStatus === "not-installed" && !uvInstalling
-              ? { label: "Install", onClick: installUv }
+              ? { label: "安装", onClick: installUv }
               : uvInstalling
-                ? { label: "Installing...", loading: true }
+                ? { label: "安装中...", loading: true }
                 : undefined
           }
         />
 
-        {/* Scientific Skills */}
+        {/* 科学技能 */}
         <StatusRow
           ok={!!skillsStatus?.installed}
-          label="Scientific Skills"
+          label="科学技能"
           detail={
             skillsInstalling
-              ? "Installing..."
+              ? "安装中..."
               : skillsStatus?.installed
-                ? `${skillsStatus.skill_count} skills`
-                : "Not installed"
+                ? `${skillsStatus.skill_count} 个技能`
+                : "未安装"
           }
           action={
             skillsInstalling
-              ? { label: "Installing...", loading: true }
+              ? { label: "安装中...", loading: true }
               : {
-                  label: skillsStatus?.installed ? "Manage" : "Install",
+                  label: skillsStatus?.installed ? "管理" : "安装",
                   onClick: () => setShowSkillsOnboarding(true),
                   icon: skillsStatus?.installed ? "settings" : "download",
                 }
@@ -1080,8 +1079,8 @@ function EnvironmentStatus({ appVersion }: { appVersion: string }) {
 
         <StatusRow
           ok={true}
-          label="ClaudePrism"
-          detail={appVersion ? `v${appVersion}` : "Checking..."}
+          label="DeepPrism"
+          detail={appVersion ? `v${appVersion}` : "检测中..."}
         />
       </div>
 

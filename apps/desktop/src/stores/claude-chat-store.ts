@@ -8,7 +8,7 @@ import { createLogger } from "@/lib/debug/logger";
 const log = createLogger("claude");
 export const CLAUDE_CODE_PROVIDER_ID = "__claude-code__";
 export const SELECTED_PROVIDER_CREDENTIAL_STORAGE_KEY =
-  "claude-prism:selected-provider-credential-id";
+  "deep-prism:selected-provider-credential-id";
 
 function providerSelectionStorage(): Storage | null {
   try {
@@ -366,7 +366,7 @@ function buildProviderSwitchContext(
 
   return [
     "[Provider switch context]",
-    "The conversation below happened earlier in this same ClaudePrism chat before switching model providers.",
+    "The conversation below happened earlier in this same DeepPrism chat before switching model providers.",
     "Use it as prior context. Do not repeat it; answer only the user's latest request after this block.",
     "",
     selected.join("\n\n"),

@@ -214,13 +214,13 @@ export function EditorToolbar({
                 onClick={onCropToggle}
               >
                 <CropIcon className="size-3.5" />
-                Crop
+                裁剪
               </Button>
             </>
           )}
           {editors.length === 1 && (
             <TooltipIconButton
-              tooltip={`Open in ${editors[0].name}`}
+              tooltip={`在 ${editors[0].name} 中打开`}
               onClick={() => openInEditor(editors[0].id)}
               className={getOpenEditorButtonClassName(editors[0])}
             >
@@ -234,7 +234,7 @@ export function EditorToolbar({
                   variant="ghost"
                   size="icon"
                   className="size-6 p-1"
-                  title="Open in Editor"
+                  title="在编辑器中打开"
                 >
                   <ExternalLinkIcon className="size-4" />
                 </Button>
@@ -269,58 +269,58 @@ export function EditorToolbar({
       </div>
       <div className="mx-2 h-4 w-px shrink-0 bg-border" />
       <TooltipIconButton
-        tooltip="Bold (\\textbf)"
+        tooltip="粗体 (\\textbf)"
         onClick={() => insertText("\\textbf{", "}")}
       >
         <BoldIcon className="size-4" />
       </TooltipIconButton>
       <TooltipIconButton
-        tooltip="Italic (\\textit)"
+        tooltip="斜体 (\\textit)"
         onClick={() => insertText("\\textit{", "}")}
       >
         <ItalicIcon className="size-4" />
       </TooltipIconButton>
       <TooltipIconButton
-        tooltip="Code (\\texttt)"
+        tooltip="代码 (\\texttt)"
         onClick={() => insertText("\\texttt{", "}")}
       >
         <CodeIcon className="size-4" />
       </TooltipIconButton>
       <div className="mx-2 h-4 w-px bg-border" />
       <TooltipIconButton
-        tooltip="Section"
+        tooltip="章节"
         onClick={() => insertText("\\section{", "}")}
       >
         <Heading1Icon className="size-4" />
       </TooltipIconButton>
       <TooltipIconButton
-        tooltip="Subsection"
+        tooltip="小节"
         onClick={() => insertText("\\subsection{", "}")}
       >
         <Heading2Icon className="size-4" />
       </TooltipIconButton>
       <TooltipIconButton
-        tooltip="List item"
+        tooltip="列表项"
         onClick={() => insertText("\\item ")}
       >
         <ListIcon className="size-4" />
       </TooltipIconButton>
       <div className="mx-2 h-4 w-px bg-border" />
       <TooltipIconButton
-        tooltip="Inline math ($...$)"
+        tooltip="行内公式 ($...$)"
         onClick={() => wrapSelection("$")}
       >
         <FunctionSquareIcon className="size-4" />
       </TooltipIconButton>
       <TooltipIconButton
-        tooltip="Display math (\\[...\\])"
+        tooltip="独立公式 (\\[...\\])"
         onClick={() => insertText("\\[\n  ", "\n\\]")}
       >
         <span className="font-mono text-xs">∫</span>
       </TooltipIconButton>
       <div className="mx-2 h-4 w-px bg-border" />
       <TooltipIconButton
-        tooltip="Citation (\\cite)"
+        tooltip="引用 (\\cite)"
         onClick={() => insertText("\\cite{", "}")}
       >
         <BookMarkedIcon className="size-4" />
@@ -331,14 +331,14 @@ export function EditorToolbar({
         size="sm"
         className="h-6 px-2 font-mono text-xs"
         onClick={() => setVimMode(!vimMode)}
-        title="Toggle Vim mode"
+        title="切换 Vim 模式"
       >
         VIM
       </Button>
       <div data-tauri-drag-region className="flex-1 self-stretch" />
       {editors.length === 1 && (
         <TooltipIconButton
-          tooltip={`Open in ${editors[0].name}`}
+          tooltip={`在 ${editors[0].name} 中打开`}
           onClick={() => openInEditor(editors[0].id)}
           className={getOpenEditorButtonClassName(editors[0])}
         >
@@ -352,7 +352,7 @@ export function EditorToolbar({
               variant="ghost"
               size="icon"
               className="size-6 p-1"
-              title="Open in Editor"
+              title="在编辑器中打开"
             >
               <ExternalLinkIcon className="size-4" />
             </Button>

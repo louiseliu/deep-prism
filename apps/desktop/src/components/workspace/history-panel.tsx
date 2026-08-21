@@ -33,22 +33,22 @@ import { Input } from "@/components/ui/input";
 function formatRelativeTime(timestamp: number): string {
   const now = Date.now() / 1000;
   const diff = now - timestamp;
-  if (diff < 60) return "Just now";
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+  if (diff < 60) return "刚刚";
+  if (diff < 3600) return `${Math.floor(diff / 60)} 分钟前`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} 小时前`;
+  if (diff < 604800) return `${Math.floor(diff / 86400)} 天前`;
   const date = new Date(timestamp * 1000);
-  return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  return date.toLocaleDateString("zh-CN", { month: "short", day: "numeric" });
 }
 
 function snapshotTypeLabel(message: string): string {
-  if (message.startsWith("[auto]")) return "Auto-save";
-  if (message.startsWith("[manual]")) return "Save";
-  if (message.startsWith("[compile]")) return "Compile";
+  if (message.startsWith("[auto]")) return "自动保存";
+  if (message.startsWith("[manual]")) return "手动保存";
+  if (message.startsWith("[compile]")) return "编译";
   if (message.startsWith("[claude]"))
-    return message.includes("Before") ? "Before Claude" : "After Claude";
-  if (message.startsWith("[restore]")) return "Restore";
-  if (message.startsWith("[init]")) return "Initial";
+    return message.includes("Before") ? "AI修改前" : "AI修改后";
+  if (message.startsWith("[restore]")) return "还原";
+  if (message.startsWith("[init]")) return "初始版本";
   return message;
 }
 
@@ -185,7 +185,7 @@ export function HistoryPanel({ maxHeight }: { maxHeight?: string }) {
     return (
       <div className="flex flex-col items-center gap-2 px-3 py-4 text-center">
         <p className="text-muted-foreground text-xs">
-          Open a project to view history.
+          打开项目以查看历史记录。
         </p>
       </div>
     );
@@ -197,7 +197,7 @@ export function HistoryPanel({ maxHeight }: { maxHeight?: string }) {
       <div className="flex shrink-0 items-center justify-between border-b px-3 py-2">
         <div className="flex items-center gap-2">
           <HistoryIcon className="size-4 text-muted-foreground" />
-          <span className="font-medium text-sm">History</span>
+          <span className="font-medium text-sm">历史记录</span>
         </div>
       </div>
       <div
@@ -207,7 +207,7 @@ export function HistoryPanel({ maxHeight }: { maxHeight?: string }) {
       >
         {linearSnapshots.length === 0 && !isLoading ? (
           <div className="px-3 py-4 text-center text-muted-foreground text-xs">
-            No history yet
+            暂无历史记录
           </div>
         ) : (
           <div className="py-0.5">
@@ -240,11 +240,11 @@ export function HistoryPanel({ maxHeight }: { maxHeight?: string }) {
       <Dialog open={labelDialogOpen} onOpenChange={setLabelDialogOpen}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>Add Label</DialogTitle>
+            <DialogTitle>添加标签</DialogTitle>
           </DialogHeader>
           <div className="py-4">
             <Input
-              placeholder="e.g. Draft v1"
+              placeholder="例如：初稿 v1"
               value={labelValue}
               onChange={(e) => setLabelValue(e.target.value)}
               onKeyDown={(e) => {
@@ -255,10 +255,10 @@ export function HistoryPanel({ maxHeight }: { maxHeight?: string }) {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setLabelDialogOpen(false)}>
-              Cancel
+              取消
             </Button>
             <Button onClick={handleAddLabel} disabled={!labelValue.trim()}>
-              Add
+              添加
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -326,7 +326,7 @@ function SnapshotRow({
                     <TagIcon className="size-2" />
                     {label}
                     <button
-                      aria-label={`Remove label ${label}`}
+                      aria-label={`移除标签 ${label}`}
                       className="ml-0.5 rounded-sm opacity-0 hover:text-destructive group-hover:opacity-100"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -354,16 +354,16 @@ function SnapshotRow({
       <ContextMenuContent>
         <ContextMenuItem onClick={onRestore} disabled={isRestoring}>
           <RotateCcwIcon className="mr-2 size-3.5" />
-          Restore this version
+          还原到此版本
         </ContextMenuItem>
         <ContextMenuItem onClick={onAddLabel}>
           <PlusIcon className="mr-2 size-3.5" />
-          Add label
+          添加标签
         </ContextMenuItem>
         <ContextMenuSeparator />
         <ContextMenuItem onClick={onCopySha}>
           <CopyIcon className="mr-2 size-3.5" />
-          Copy SHA
+          复制 SHA
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>

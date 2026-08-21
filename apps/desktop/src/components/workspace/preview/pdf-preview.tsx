@@ -343,14 +343,14 @@ export function PdfPreview() {
     () => [
       {
         id: "proofread",
-        label: "Proofread",
+        label: "校对",
         icon: <SpellCheckIcon className="size-4" />,
       },
       {
         id: "navigate",
-        label: "Navigate to source",
+        label: "跳转到源码",
         icon: <FileTextIcon className="size-4" />,
-        hint: "dbl-click",
+        hint: "双击",
       },
     ],
     [],
@@ -480,7 +480,7 @@ export function PdfPreview() {
       ? mainFile.name.replace(/\.tex$/, ".pdf")
       : "document.pdf";
     const filePath = await save({
-      title: "Export PDF",
+      title: "导出 PDF",
       defaultPath: defaultName,
       filters: [{ name: "PDF", extensions: ["pdf"] }],
     });
@@ -650,9 +650,9 @@ export function PdfPreview() {
           <div className="w-full max-w-lg">
             <div className="mb-4 flex items-center gap-2 text-destructive">
               <AlertCircleIcon className="size-5" />
-              <h2 className="font-semibold text-base">Compilation Failed</h2>
+              <h2 className="font-semibold text-base">编译失败</h2>
               <span className="ml-auto rounded-full bg-destructive/15 px-2 py-0.5 font-medium text-xs">
-                {errors.length} {errors.length === 1 ? "error" : "errors"}
+                {errors.length} 个错误
               </span>
             </div>
             <div className="rounded-lg border border-destructive/20 bg-background">
@@ -671,14 +671,14 @@ export function PdfPreview() {
                 className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 font-medium text-primary-foreground text-xs shadow-sm transition-colors hover:bg-primary/90"
               >
                 <MousePointerClickIcon className="size-3.5" />
-                Fix with Chat
+                AI 修复
               </button>
               <button
                 onClick={() => handleCompile(true)}
                 className="flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 font-medium text-foreground text-xs transition-colors hover:bg-muted"
               >
                 <RefreshCwIcon className="size-3.5" />
-                Retry
+                重试
               </button>
             </div>
           </div>
@@ -690,10 +690,10 @@ export function PdfPreview() {
         <div className="flex flex-1 flex-col items-center justify-center bg-muted/30 p-8">
           <FileTextIcon className="mb-4 size-16 text-muted-foreground/50" />
           <h2 className="mb-2 font-medium text-lg text-muted-foreground">
-            PDF Preview
+            PDF 预览
           </h2>
           <p className="mb-4 text-center text-muted-foreground text-sm">
-            Press Cmd+Enter to compile your document
+            按 Cmd+Enter 编译文档
           </p>
           {isTexActive && (
             <Button
@@ -703,7 +703,7 @@ export function PdfPreview() {
               onClick={() => handleCompile(true)}
             >
               <RefreshCwIcon className="size-3.5" />
-              Compile
+              编译
             </Button>
           )}
         </div>
@@ -714,7 +714,7 @@ export function PdfPreview() {
         <div className="flex flex-1 flex-col items-center justify-center bg-muted/30 p-8">
           <AlertCircleIcon className="mb-4 size-12 text-destructive" />
           <h2 className="mb-2 font-medium text-destructive text-lg">
-            PDF Load Error
+            PDF 加载错误
           </h2>
           <p className="max-w-md text-center text-muted-foreground text-sm">
             {pdfError}
@@ -739,7 +739,7 @@ export function PdfPreview() {
                 <div className="flex h-full flex-col items-center justify-center gap-3 bg-muted/30 p-8">
                   <AlertCircleIcon className="size-10 text-destructive" />
                   <p className="text-muted-foreground text-sm">
-                    PDF viewer crashed. Try recompiling.
+                    PDF 查看器崩溃，请重新编译。
                   </p>
                   <Button
                     variant="outline"
@@ -748,7 +748,7 @@ export function PdfPreview() {
                     onClick={() => handleCompile(true)}
                   >
                     <RefreshCwIcon className="size-3.5" />
-                    Recompile
+                    重新编译
                   </Button>
                 </div>
               }
@@ -827,7 +827,7 @@ export function PdfPreview() {
             <div className="flex items-center gap-1.5 rounded-md bg-muted/50 px-2 py-1">
               <LoaderIcon className="size-3.5 animate-spin text-muted-foreground" />
               <span className="@[38rem]/pv:inline hidden font-medium text-muted-foreground text-xs">
-                Saving...
+                保存中...
               </span>
             </div>
           )}
@@ -835,7 +835,7 @@ export function PdfPreview() {
             <div className="flex items-center gap-1.5 rounded-md bg-muted/50 px-2 py-1">
               <LoaderIcon className="size-3.5 animate-spin text-muted-foreground" />
               <span className="@[38rem]/pv:inline hidden font-medium text-muted-foreground text-xs">
-                Compiling...
+                编译中...
               </span>
             </div>
           )}
@@ -845,11 +845,11 @@ export function PdfPreview() {
               size="sm"
               className="h-7 gap-1.5 @[42rem]/pv:px-2.5 px-2 text-xs"
               onClick={() => handleCompile(true)}
-              title={pdfData ? "Recompile" : "Compile"}
+              title={pdfData ? "重新编译" : "编译"}
             >
               <RefreshCwIcon className="size-3.5" />
               <span className="@[42rem]/pv:inline hidden">
-                {pdfData ? "Recompile" : "Compile"}
+                {pdfData ? "重新编译" : "编译"}
               </span>
             </Button>
           )}
@@ -860,10 +860,10 @@ export function PdfPreview() {
               className="h-7 gap-1.5 px-2.5 text-destructive text-xs hover:text-destructive"
               onClick={() => handleCompile(true)}
               disabled={!isTexActive}
-              title="Retry compile"
+              title="重新编译"
             >
               <RefreshCwIcon className="size-3.5" />
-              <span className="@[42rem]/pv:inline hidden">Retry</span>
+              <span className="@[42rem]/pv:inline hidden">重试</span>
             </Button>
           )}
         </div>
@@ -877,7 +877,7 @@ export function PdfPreview() {
                 className="size-7 shrink-0"
                 onClick={() => goToPage(currentPage - 1)}
                 disabled={currentPage <= 1}
-                title="Page Up"
+                title="上一页"
               >
                 <ChevronUpIcon className="size-3.5" />
               </Button>
@@ -904,7 +904,7 @@ export function PdfPreview() {
                     setIsEditingPage(true);
                     setPageInputValue(String(currentPage));
                   }}
-                  title="Click to jump to page"
+                  title="点击跳转到指定页"
                 >
                   {currentPage}
                 </button>
@@ -921,7 +921,7 @@ export function PdfPreview() {
                 className="size-7 shrink-0"
                 onClick={() => goToPage(currentPage + 1)}
                 disabled={currentPage >= numPages}
-                title="Page Down"
+                title="下一页"
               >
                 <ChevronDownIcon className="size-3.5" />
               </Button>
@@ -961,15 +961,15 @@ export function PdfPreview() {
                 >
                   <SelectValue>
                     {fitMode === "fit-width"
-                      ? "Fit width"
+                      ? "适应宽度"
                       : fitMode === "fit-height"
-                        ? "Fit height"
+                        ? "适应高度"
                         : `${Math.round(scale * 100)}%`}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent position="popper" align="end">
-                  <SelectItem value="fit-width">Fit to width</SelectItem>
-                  <SelectItem value="fit-height">Fit to height</SelectItem>
+                  <SelectItem value="fit-width">适应宽度</SelectItem>
+                  <SelectItem value="fit-height">适应高度</SelectItem>
                   <SelectSeparator />
                   {ZOOM_OPTIONS.map((opt) => (
                     <SelectItem key={opt.value} value={opt.value}>
@@ -989,10 +989,10 @@ export function PdfPreview() {
                     : "bg-foreground text-background hover:bg-foreground/90"
                 }`}
                 onClick={() => setCaptureMode(!captureMode)}
-                title={`Capture & Ask (${navigator.userAgent.includes("Mac") ? "Cmd+X" : "Ctrl+X"})`}
+                title={`截图提问 (${navigator.userAgent.includes("Mac") ? "Cmd+X" : "Ctrl+X"})`}
               >
                 <CrosshairIcon className="size-3.5 shrink-0" />
-                <span className="@[56rem]/pv:inline hidden">Capture & Ask</span>
+                <span className="@[56rem]/pv:inline hidden">截图提问</span>
                 <kbd className="pointer-events-none ml-0.5 @[64rem]/pv:inline hidden rounded border border-background/30 bg-background/20 px-1 py-0.5 font-medium text-[10px] text-background leading-none">
                   {navigator.userAgent.includes("Mac") ? "Cmd+X" : "Ctrl+X"}
                 </kbd>
@@ -1003,7 +1003,7 @@ export function PdfPreview() {
                 size="icon"
                 className="size-7"
                 onClick={handleExport}
-                title="Export PDF"
+                title="导出 PDF"
               >
                 <DownloadIcon className="size-3.5" />
               </Button>
@@ -1015,7 +1015,7 @@ export function PdfPreview() {
                 variant="ghost"
                 size="icon"
                 className="size-7"
-                title="History"
+                title="历史记录"
               >
                 <HistoryIcon className="size-3.5" />
               </Button>
@@ -1044,16 +1044,16 @@ export function PdfPreview() {
           <div className="pointer-events-auto flex items-center gap-2 rounded-lg border border-border bg-background/95 px-3 py-2 shadow-lg backdrop-blur-sm">
             <CrosshairIcon className="size-3.5 text-primary" />
             <span className="text-foreground text-xs">
-              Drag to select a region
+              拖拽选择区域
             </span>
             <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 font-medium text-[10px] text-muted-foreground">
               ESC
             </kbd>
-            <span className="text-[10px] text-muted-foreground">or</span>
+            <span className="text-[10px] text-muted-foreground">或</span>
             <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 font-medium text-[10px] text-muted-foreground">
               {navigator.userAgent.includes("Mac") ? "Cmd+" : "Ctrl+"}X
             </kbd>
-            <span className="text-[10px] text-muted-foreground">to cancel</span>
+            <span className="text-[10px] text-muted-foreground">取消</span>
           </div>
         </div>
       )}
