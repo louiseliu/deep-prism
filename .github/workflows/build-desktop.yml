@@ -14,10 +14,6 @@ on:
 permissions:
   contents: write
 
-env:
-  TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-  TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-
 jobs:
   # ──────────────────────────────────────────────
   # Windows
@@ -85,13 +81,30 @@ jobs:
 
       - run: pnpm install
 
+      - name: Disable updater signing if no key
+        shell: bash
+        env:
+          HAS_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY != '' }}
+        run: |
+          if [ "$HAS_KEY" != "true" ]; then
+            echo "No TAURI_SIGNING_PRIVATE_KEY — disabling createUpdaterArtifacts"
+            node -e "const f='apps/desktop/src-tauri/tauri.conf.json';const c=JSON.parse(require('fs').readFileSync(f));c.bundle.createUpdaterArtifacts=false;require('fs').writeFileSync(f,JSON.stringify(c,null,2));"
+          fi
+
       - name: Build Tauri app
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ZOTERO_CONSUMER_KEY: ${{ secrets.ZOTERO_CONSUMER_KEY }}
           ZOTERO_CONSUMER_SECRET: ${{ secrets.ZOTERO_CONSUMER_SECRET }}
-        run: pnpm --filter @deep-prism/desktop tauri build --target x86_64-pc-windows-msvc
+          _TAURI_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          _TAURI_KEY_PW: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: |
+          if [ -n "$_TAURI_KEY" ]; then
+            export TAURI_SIGNING_PRIVATE_KEY="$_TAURI_KEY"
+            export TAURI_SIGNING_PRIVATE_KEY_PASSWORD="$_TAURI_KEY_PW"
+          fi
+          pnpm --filter @deep-prism/desktop tauri build --target x86_64-pc-windows-msvc
 
       - name: Collect updater artifacts
         id: collect
@@ -176,7 +189,7 @@ jobs:
           echo "CFLAGS=" >> $GITHUB_ENV
 
       - name: Import Apple certificate
-        if: env.APPLE_CERTIFICATE != ''
+        if: ${{ secrets.APPLE_CERTIFICATE != '' }}
         env:
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
@@ -213,16 +226,35 @@ jobs:
 
       - run: pnpm install
 
+      - name: Disable updater signing if no key
+        env:
+          HAS_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY != '' }}
+        run: |
+          if [ "$HAS_KEY" != "true" ]; then
+            echo "No TAURI_SIGNING_PRIVATE_KEY — disabling createUpdaterArtifacts"
+            node -e "const f='apps/desktop/src-tauri/tauri.conf.json';const c=JSON.parse(require('fs').readFileSync(f));c.bundle.createUpdaterArtifacts=false;require('fs').writeFileSync(f,JSON.stringify(c,null,2));"
+          fi
+
       - name: Build Tauri app
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ZOTERO_CONSUMER_KEY: ${{ secrets.ZOTERO_CONSUMER_KEY }}
           ZOTERO_CONSUMER_SECRET: ${{ secrets.ZOTERO_CONSUMER_SECRET }}
-          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
-        run: pnpm --filter @deep-prism/desktop tauri build --target aarch64-apple-darwin
+          _TAURI_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          _TAURI_KEY_PW: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          _APPLE_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+        run: |
+          if [ -n "$_APPLE_IDENTITY" ]; then
+            export APPLE_SIGNING_IDENTITY="$_APPLE_IDENTITY"
+          fi
+          if [ -n "$_TAURI_KEY" ]; then
+            export TAURI_SIGNING_PRIVATE_KEY="$_TAURI_KEY"
+            export TAURI_SIGNING_PRIVATE_KEY_PASSWORD="$_TAURI_KEY_PW"
+          fi
+          pnpm --filter @deep-prism/desktop tauri build --target aarch64-apple-darwin
 
       - name: Notarize DMG
-        if: env.APPLE_ID != ''
+        if: ${{ secrets.APPLE_ID != '' }}
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
@@ -326,7 +358,7 @@ jobs:
           echo "CFLAGS=" >> $GITHUB_ENV
 
       - name: Import Apple certificate
-        if: env.APPLE_CERTIFICATE != ''
+        if: ${{ secrets.APPLE_CERTIFICATE != '' }}
         env:
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
@@ -363,16 +395,35 @@ jobs:
 
       - run: pnpm install
 
+      - name: Disable updater signing if no key
+        env:
+          HAS_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY != '' }}
+        run: |
+          if [ "$HAS_KEY" != "true" ]; then
+            echo "No TAURI_SIGNING_PRIVATE_KEY — disabling createUpdaterArtifacts"
+            node -e "const f='apps/desktop/src-tauri/tauri.conf.json';const c=JSON.parse(require('fs').readFileSync(f));c.bundle.createUpdaterArtifacts=false;require('fs').writeFileSync(f,JSON.stringify(c,null,2));"
+          fi
+
       - name: Build Tauri app
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ZOTERO_CONSUMER_KEY: ${{ secrets.ZOTERO_CONSUMER_KEY }}
           ZOTERO_CONSUMER_SECRET: ${{ secrets.ZOTERO_CONSUMER_SECRET }}
-          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
-        run: pnpm --filter @deep-prism/desktop tauri build --target x86_64-apple-darwin
+          _TAURI_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          _TAURI_KEY_PW: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          _APPLE_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+        run: |
+          if [ -n "$_APPLE_IDENTITY" ]; then
+            export APPLE_SIGNING_IDENTITY="$_APPLE_IDENTITY"
+          fi
+          if [ -n "$_TAURI_KEY" ]; then
+            export TAURI_SIGNING_PRIVATE_KEY="$_TAURI_KEY"
+            export TAURI_SIGNING_PRIVATE_KEY_PASSWORD="$_TAURI_KEY_PW"
+          fi
+          pnpm --filter @deep-prism/desktop tauri build --target x86_64-apple-darwin
 
       - name: Notarize DMG
-        if: env.APPLE_ID != ''
+        if: ${{ secrets.APPLE_ID != '' }}
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
@@ -460,18 +511,32 @@ jobs:
 
       - run: pnpm install
 
+      - name: Disable updater signing if no key
+        env:
+          HAS_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY != '' }}
+        run: |
+          if [ "$HAS_KEY" != "true" ]; then
+            echo "No TAURI_SIGNING_PRIVATE_KEY — disabling createUpdaterArtifacts"
+            node -e "const f='apps/desktop/src-tauri/tauri.conf.json';const c=JSON.parse(require('fs').readFileSync(f));c.bundle.createUpdaterArtifacts=false;require('fs').writeFileSync(f,JSON.stringify(c,null,2));"
+          fi
+
       - name: Build Tauri app
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ZOTERO_CONSUMER_KEY: ${{ secrets.ZOTERO_CONSUMER_KEY }}
           ZOTERO_CONSUMER_SECRET: ${{ secrets.ZOTERO_CONSUMER_SECRET }}
-          # Use pkg-config (same as tectonic's own CI) with semi-static linking.
-          # AppImage bundles .so files automatically for portable distribution.
           TECTONIC_DEP_BACKEND: pkg-config
           TECTONIC_PKGCONFIG_FORCE_SEMI_STATIC: "true"
           CXXFLAGS: "-std=c++17"
           CFLAGS: ""
-        run: pnpm --filter @deep-prism/desktop tauri build --target x86_64-unknown-linux-gnu
+          _TAURI_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          _TAURI_KEY_PW: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: |
+          if [ -n "$_TAURI_KEY" ]; then
+            export TAURI_SIGNING_PRIVATE_KEY="$_TAURI_KEY"
+            export TAURI_SIGNING_PRIVATE_KEY_PASSWORD="$_TAURI_KEY_PW"
+          fi
+          pnpm --filter @deep-prism/desktop tauri build --target x86_64-unknown-linux-gnu
 
       - name: Collect updater artifacts
         id: collect
